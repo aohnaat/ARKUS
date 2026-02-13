@@ -16,7 +16,6 @@ Este projeto está sendo desenvolvido como atividade acadêmica, com entregas in
 - Front-end: HTML e CSS
 - Back-end: Python
 - Banco de dados: SQLite
-- Banco de dados: SQLite
 
 ---
 
