@@ -28,7 +28,8 @@ Este projeto está sendo desenvolvido como atividade acadêmica, com entregas in
 ├── frontend/
 │ ├── index.html
 │ └── style.css
-└── README.md```
+└── README.md
+```
 
 ---
 
