@@ -19,18 +19,6 @@ Este projeto está sendo desenvolvido como atividade acadêmica, com entregas in
 
 ---
 
-## 🗂️ Estrutura do projeto
-arkus/
-├── backend/
-│ └── app.py
-├── frontend/
-│ ├── index.html
-│ └── style.css
-└── README.md
-
-
----
-
 ## 🚀 Funcionalidades
 - Estrutura inicial do sistema
 - Separação entre front-end e back-end
@@ -48,4 +36,4 @@ O desenvolvimento do projeto está dividido em etapas:
 ---
 
 ## 👤 Desenvolvedora
-Laís
+Laís Reis
