@@ -1,4 +1,4 @@
-# 🏥 Projeto ARKUS - Gestão de Logística Hospitalar
+# 🏥 Projeto ARKUS - Sistema de Roteirização 
 
 O **ARKUS** é uma solução de roteirização e gestão de demandas laboratoriais. O objetivo do sistema é organizar a coleta de exames domiciliares, permitindo que gestores controlem pedidos manuais e em lote, distribuindo-os de forma eficiente para as equipes técnicas.
 
