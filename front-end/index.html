@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ARKUS | Sistema de Logística</title>
+    <style>
+        :root { --blue: #003366; --green: #28a745; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; margin: 0; height: 100vh; }
+        .sidebar { width: 260px; background: var(--blue); color: white; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .menu-item { padding: 15px 25px; background: rgba(255,255,255,0.2); border-left: 4px solid var(--green); margin-top: 20px; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .row { display: flex; gap: 30px; margin-bottom: 30px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex: 1; }
+        .card h3 { margin-top: 0; border-left: 4px solid var(--green); padding-left: 15px; color: var(--blue); }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; }
+        .btn { padding: 15px; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn-save { background: var(--blue); }
+        .btn-import { background: var(--green); }
+        .filter-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: #e9ecef; padding: 15px; border-radius: 8px; }
+        .filter-container label { font-weight: bold; color: var(--blue); }
+        .filter-container input { margin-bottom: 0; width: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h1>ARKUS</h1><small>Sistema de Logística</small></div>
+        <div class="menu-item">Demandas</div>
+    </div>
+    <div class="main-content">
+        <div class="row">
+            <div class="card">
+                <h3>Cadastro Manual</h3>
+                <input type="text" id="nome" placeholder="Nome Completo">
+                <input type="text" id="endereco" placeholder="Endereço">
+                <input type="date" id="data">
+                <select id="turno"><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option></select>
+                <select id="tipo">
+                    <option value="Coleta de Sangue">Coleta de Sangue</option>
+                    <option value="Retirada de Material">Retirada de Material</option>
+                </select>
+                <input type="text" id="horario" placeholder="Horário (Ex: 08:30)">
+                <button class="btn btn-save" onclick="salvarPaciente()">SALVAR</button>
+            </div>
+            <div class="card" style="max-width: 400px;">
+                <h3>Importar lista (.csv)</h3>
+                <input type="file" id="arquivoCsv" accept=".csv">
+                <button class="btn btn-import" onclick="importarPlanilha()">IMPORTAR</button>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Demandas Pendentes</h3>
+            <div class="filter-container">
+                <label>Filtrar por Data:</label>
+                <input type="date" id="filtroData" onchange="filtrarTabela()">
+                <button class="btn" style="background:#6c757d; width:auto; padding:10px 20px;" onclick="limparFiltro()">Todos</button>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Nome</th><th>Data</th><th>Turno</th><th>Tipo</th><th>Horário</th></tr>
+                </thead>
+                <tbody id="tabela"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        const API = 'http://127.0.0.1:5000';
+        let dadosLocais = [];
+        window.onload = carregarDemandas;
+        async function carregarDemandas() {
+            try {
+                const res = await fetch(`${API}/listar_demandas`);
+                dadosLocais = await res.json();
+                renderizarTabela(dadosLocais);
+            } catch(e) { console.error(e); }
+        }
+        function renderizarTabela(dados) {
+            const tbody = document.getElementById('tabela');
+            tbody.innerHTML = '';
+            dados.forEach(d => {
+                let dataExibicao = "-";
+                if(d.data_agendamento) {
+                    const dObj = new Date(d.data_agendamento);
+                    const dia = String(dObj.getUTCDate()).padStart(2, '0');
+                    const mes = String(dObj.getUTCMonth() + 1).padStart(2, '0');
+                    const ano = dObj.getUTCFullYear();
+                    dataExibicao = `${dia}/${mes}/${ano}`;
+                }
+                tbody.innerHTML += `<tr><td>${d.id}</td><td>${d.nome}</td><td>${dataExibicao}</td><td>${d.turno}</td><td>${d.tipo}</td><td>${d.preferencia_horario || '-'}</td></tr>`;
+            });
+        }
+        function filtrarTabela() {
+            const busca = document.getElementById('filtroData').value;
+            if (!busca) return;
+            const filtrados = dadosLocais.filter(d => {
+                if (!d.data_agendamento) return false;
+                const dObj = new Date(d.data_agendamento);
+                const formatada = `${dObj.getUTCFullYear()}-${String(dObj.getUTCMonth() + 1).padStart(2, '0')}-${String(dObj.getUTCDate()).padStart(2, '0')}`;
+                return formatada === busca;
+            });
+            renderizarTabela(filtrados);
+        }
+        function limparFiltro() {
+            document.getElementById('filtroData').value = '';
+            renderizarTabela(dadosLocais);
+        }
+        async function salvarPaciente() {
+            const payload = {
+                nome: document.getElementById('nome').value,
+                endereco: document.getElementById('endereco').value,
+                data: document.getElementById('data').value,
+                turno: document.getElementById('turno').value,
+                tipo: document.getElementById('tipo').value,
+                horario: document.getElementById('horario').value
+            };
+            await fetch(`${API}/cadastro_manual`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            carregarDemandas();
+        }
+        async function importarPlanilha() {
+            const fileInput = document.getElementById('arquivoCsv');
+            if (fileInput.files.length === 0) return;
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            const res = await fetch(`${API}/importar_csv`, { method: 'POST', body: formData });
+            if(res.ok) { alert("Sucesso!"); carregarDemandas(); } else { alert("Erro ao importar."); }
+        }
+    </script>
+</body>
+</html>
