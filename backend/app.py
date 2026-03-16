@@ -78,6 +78,6 @@ def deletar(id):
         cursor.execute("DELETE FROM coletas WHERE id = %s", (id,))
     db.commit()
     return jsonify({"message": "Removido"}), 200
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
