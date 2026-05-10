@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta charset="UTF-8">
+    <title>ARKUS - Rotas</title>
+
+    <style>
+        :root {
+            --bg: #1a1d23;
+            --card: #252a33;
+            --accent: #3498db;
+            --text: #ecf0f1;
+            --tec: #9b59b6;
+            --moto: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        nav {
+            background: #252a33;
+            padding: 15px 40px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 30px;
+            border-bottom: 2px solid #343b47;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav i {
+            width: 20px;
+            height: 20px;
+        }
+
+        nav a.active {
+            opacity: 1;
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .titulo-sistema {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .panel {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 4px solid var(--accent);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        input[type="date"] {
+            padding: 10px;
+            background: #343b47;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .coluna {
+            background: #1e2229;
+            padding: 15px;
+            border-radius: 8px;
+            min-height: 400px;
+        }
+
+        .coluna h3 {
+            margin-top: 0;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #343b47;
+        }
+
+        .card-profissional {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-top: 4px solid var(--tec);
+        }
+
+        .card-profissional.moto {
+            border-top-color: var(--moto);
+        }
+
+        .nome-profissional {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            color: var(--accent);
+        }
+
+        .item-atendimento {
+            padding: 10px;
+            border-bottom: 1px solid #343b47;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .item-atendimento:last-child {
+            border-bottom: none;
+        }
+
+        .atendimento-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .num-ordem {
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .horario {
+            font-size: 12px;
+            background: #343b47;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="titulo-sistema">
+        ARKUS | Sistema de Roteirização Domiciliar
+    </div>
+
+    <nav>
+        <a href="index.html">
+            <i data-lucide="calendar"></i>
+            Agendamentos
+        </a>
+
+        <a href="tecnicos.html">
+            <i data-lucide="users"></i>
+            Gestão de Equipe
+        </a>
+
+        <a href="rotas.html" class="active">
+            <i data-lucide="route"></i>
+            Rotas
+        </a>
+    </nav>
+
+    <div class="panel">
+
+        <label>Selecione a Data:</label>
+
+        <input
+            type="date"
+            id="data_rota"
+            onchange="carregarRotas()"
+        >
+
+        <button onclick="gerarRotas()">
+            Gerar Rotas
+        </button>
+
+        <span
+            id="badge-pendentes"
+            style="
+                margin-left:auto;
+                font-weight:bold;
+                font-size:16px;
+                display:none;
+            "
+        ></span>
+
+    </div>
+
+    <div class="board">
+
+        <div class="coluna" id="col-tec">
+
+            <h3 style="
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                gap:8px;
+            ">
+                <i
+                    data-lucide="test-tube"
+                    style="color: var(--tec);"
+                ></i>
+
+                Técnicos (Coletas)
+            </h3>
+
+            <div id="lista-tec"></div>
+
+        </div>
+
+        <div class="coluna" id="col-moto">
+
+            <h3 style="
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                gap:8px;
+            ">
+                <i
+                    data-lucide="package"
+                    style="color: var(--moto);"
+                ></i>
+
+                Motoboys (Retiradas)
+            </h3>
+
+            <div id="lista-moto"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const API = "http://localhost:5000";
+
+        window.onload = () => {
+
+            lucide.createIcons();
+
+            document.getElementById('data_rota').valueAsDate =
+                new Date();
+
+            carregarRotas();
+        };
+
+        async function gerarRotas() {
+
+            const dataSel =
+                document.getElementById('data_rota').value;
+
+            if (!dataSel) {
+                return alert(
+                    "Selecione uma data primeiro!"
+                );
+            }
+
+            const req = await fetch(
+                `${API}/gerar_rotas`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        data: dataSel
+                    })
+                }
+            );
+
+            const res = await req.json();
+
+            if (req.ok) {
+
+                alert(res.message);
+
+                carregarRotas();
+
+            } else {
+
+                alert("Erro: " + res.message);
+            }
+        }
+
+        async function carregarRotas() {
+
+            const dataSel =
+                document.getElementById('data_rota').value;
+
+            if (!dataSel) {
+                return;
+            }
+
+            const resPendencias = await fetch(
+                `${API}/resumo_pendencias?data=${dataSel}`
+            );
+
+            const pendencias =
+                await resPendencias.json();
+
+            const totalPendentes =
+                pendencias.Coleta +
+                pendencias.Retirada;
+
+            const res = await fetch(
+                `${API}/visualizar_rotas?data=${dataSel}`
+            );
+
+            const dados = await res.json();
+
+            const badge =
+                document.getElementById(
+                    'badge-pendentes'
+                );
+
+            if (dados.length === 0) {
+
+                badge.style.display = 'none';
+
+            } else if (totalPendentes > 0) {
+
+                badge.style.display = 'block';
+
+                badge.innerHTML = `
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        gap:8px;
+                        background:rgba(231, 76, 60, 0.15);
+                        border:1px solid rgba(231, 76, 60, 0.4);
+                        padding:8px 16px;
+                        border-radius:6px;
+                        color:#e74c3c;
+                        font-size:14px;
+                        font-weight:normal;
+                    ">
+                        <i
+                            data-lucide="alert-octagon"
+                            style="width:18px;height:18px;"
+                        ></i>
+
+                        <span>
+                            <strong>
+                                Alerta de Capacidade:
+                            </strong>
+
+                            ${totalPendentes}
+                            solicitação(ões)
+                            requerem alocação manual.
+                        </span>
+                    </div>
+                `;
+
+            } else {
+
+                badge.style.display = 'block';
+
+                badge.innerHTML = `
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        gap:8px;
+                        background:rgba(46, 204, 113, 0.15);
+                        border:1px solid rgba(46, 204, 113, 0.4);
+                        padding:8px 16px;
+                        border-radius:6px;
+                        color:#2ecc71;
+                        font-size:14px;
+                        font-weight:normal;
+                    ">
+                        <i
+                            data-lucide="check-circle-2"
+                            style="width:18px;height:18px;"
+                        ></i>
+
+                        <span>
+                            <strong>Status:</strong>
+                            Roteirização otimizada com
+                            100% de aproveitamento.
+                        </span>
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();
+
+            document.getElementById(
+                'lista-tec'
+            ).innerHTML = '';
+
+            document.getElementById(
+                'lista-moto'
+            ).innerHTML = '';
+
+            const gruposTec = {};
+            const gruposMoto = {};
+
+            dados.forEach(c => {
+
+                if (c.tecnico_id) {
+
+                    if (!gruposTec[c.tecnico_id]) {
+
+                        gruposTec[c.tecnico_id] = {
+                            nome: c.tecnico_nome,
+                            plantao: c.tecnico_horario,
+                            atendimentos: []
+                        };
+                    }
+
+                    gruposTec[c.tecnico_id]
+                        .atendimentos
+                        .push(c);
+                }
+
+                if (c.motoboy_id) {
+
+                    if (!gruposMoto[c.motoboy_id]) {
+
+                        gruposMoto[c.motoboy_id] = {
+                            nome: c.motoboy_nome,
+                            plantao: c.motoboy_horario,
+                            atendimentos: []
+                        };
+                    }
+
+                    gruposMoto[c.motoboy_id]
+                        .atendimentos
+                        .push(c);
+                }
+            });
+
+            const renderizarGrupo = (
+                grupos,
+                containerId,
+                isMoto
+            ) => {
+
+                let html = '';
+
+                Object.values(grupos).forEach(
+                    grupo => {
+
+                        grupo.atendimentos.sort(
+                            (a, b) => {
+
+                                const horaA =
+                                    a.preferencia_horario
+                                    || "00:00";
+
+                                const horaB =
+                                    b.preferencia_horario
+                                    || "00:00";
+
+                                return horaA.localeCompare(
+                                    horaB
+                                );
+                            }
+                        );
+
+                        html += `
+                            <div class="
+                                card-profissional
+                                ${isMoto ? 'moto' : ''}
+                            ">
+
+                                <div style="
+                                    display:flex;
+                                    justify-content:space-between;
+                                    align-items:center;
+                                    margin-bottom:10px;
+                                ">
+
+                                    <span class="
+                                        nome-profissional
+                                    ">
+                                        ${
+                                            isMoto
+                                            ? '🏍️'
+                                            : '👨‍⚕️'
+                                        }
+
+                                        ${grupo.nome}
+                                    </span>
+
+                                    <span style="
+                                        font-size:11px;
+                                        background:#343b47;
+                                        padding:4px 8px;
+                                        border-radius:12px;
+                                        opacity:0.9;
+                                    ">
+                                        📅 ${grupo.plantao}
+                                    </span>
+
+                                </div>
+                        `;
+
+                        grupo.atendimentos.forEach(
+                            (atend, index) => {
+
+                                html += `
+                                    <div class="
+                                        item-atendimento
+                                    ">
+
+                                        <div class="
+                                            atendimento-header
+                                        ">
+
+                                            <span>
+                                                <span class="
+                                                    num-ordem
+                                                ">
+                                                    ${index + 1}°
+                                                </span>
+
+                                                <strong>
+                                                    ${atend.nome}
+                                                </strong>
+                                            </span>
+
+                                            <span class="
+                                                horario
+                                            ">
+                                                🕒
+                                                ${atend.preferencia_horario}
+                                            </span>
+
+                                        </div>
+
+                                        <small style="
+                                            color:#bbb;
+                                        ">
+                                            📍
+                                            ${atend.endereco}
+                                        </small>
+
+                                    </div>
+                                `;
+                            }
+                        );
+
+                        html += `
+                            </div>
+                        `;
+                    }
+                );
+
+                document.getElementById(
+                    containerId
+                ).innerHTML =
+                    html
+                    || `
+                        <p style="
+                            text-align:center;
+                            opacity:0.5;
+                        ">
+                            Nenhuma rota gerada.
+                        </p>
+                    `;
+            };
+
+            renderizarGrupo(
+                gruposTec,
+                'lista-tec',
+                false
+            );
+
+            renderizarGrupo(
+                gruposMoto,
+                'lista-moto',
+                true
+            );
+        }
+
+    </script>
+
+</body>
+</html>
