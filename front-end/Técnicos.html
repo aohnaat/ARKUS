@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <meta charset="UTF-8">
+
+    <title>ARKUS - Equipe</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="logo.png"
+    >
+
+    <style>
+
+        :root {
+            --bg: #1a1d23;
+            --card: #252a33;
+            --accent: #3498db;
+            --text: #ecf0f1;
+            --danger: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        nav {
+            background: #252a33;
+            padding: 15px 40px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 30px;
+            border-bottom: 2px solid #343b47;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav i {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.2;
+        }
+
+        nav a.active {
+            opacity: 1;
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 8px;
+            border-top: 4px solid var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: #343b47;
+            padding: 8px 20px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            opacity: 1;
+        }
+
+        .btn-config {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text);
+            opacity: 0.5;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            background: #343b47;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #343b47;
+        }
+
+        .col-check {
+            display: none;
+        }
+
+        .show-manage .col-check {
+            display: table-cell;
+        }
+
+        .btn-mass-delete {
+            display: none;
+            background: var(--danger);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            float: right;
+            margin-bottom: 10px;
+        }
+
+        .show-manage .btn-mass-delete {
+            display: block;
+        }
+
+        .titulo-sistema {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="titulo-sistema">
+        ARKUS | Sistema de Roteirização Domiciliar
+    </div>
+
+    <nav>
+
+        <a href="index.html">
+            <i data-lucide="calendar"></i>
+            Agendamentos
+        </a>
+
+        <a
+            href="tecnicos.html"
+            class="active"
+        >
+            <i data-lucide="users"></i>
+            Gestão de Equipe
+        </a>
+
+        <a href="rotas.html">
+            <i data-lucide="route"></i>
+            Rotas
+        </a>
+
+    </nav>
+
+    <div class="grid">
+
+        <aside>
+
+            <div class="card">
+
+                <div style="
+                    display:flex;
+                    gap:10px;
+                    margin-bottom:15px;
+                ">
+
+                    <button
+                        class="tab-btn active"
+                        id="btn-tec"
+                        onclick="setTipo('tecnico')"
+                    >
+                        Técnico
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        id="btn-moto"
+                        onclick="setTipo('motoboy')"
+                    >
+                        Motoboy
+                    </button>
+
+                </div>
+
+                <h3 id="form-title">
+                    Cadastrar Técnico
+                </h3>
+
+                <input
+                    type="text"
+                    id="nome"
+                    placeholder="Nome Completo"
+                >
+
+                <input
+                    type="text"
+                    id="id_ref"
+                    placeholder="Matrícula"
+                >
+
+                <select id="horario">
+                    <option value="" disabled selected>Horário de trabalho</option>
+                    <option value="06:00 - 12:00">06:00 - 12:00</option>
+                    <option value="07:00 - 13:00">07:00 - 13:00</option>
+                    <option value="12:00 - 18:00">12:00 - 18:00</option>
+                    <option value="13:00 - 19:00">13:00 - 19:00</option>
+                    <option value="Manhã">Manhã</option>
+                    <option value="Tarde">Tarde</option>
+                </select>
+
+                <div
+                    id="extra-field"
+                    style="display:none;"
+                >
+
+                    <input
+                        type="text"
+                        id="placa"
+                        placeholder="Placa do Veículo"
+                    >
+
+                </div>
+
+                <button
+                    style="
+                        width:100%;
+                        background:var(--accent);
+                        color:white;
+                        padding:12px;
+                        border:none;
+                        border-radius:4px;
+                        font-weight:bold;
+                        cursor:pointer;
+                    "
+                    onclick="salvarEquipe()"
+                >
+                    Adicionar
+                </button>
+
+                <hr style="
+                    border:0.5px solid #444;
+                    margin:20px 0;
+                ">
+
+                <input
+                    type="file"
+                    id="csv_equipe"
+                >
+
+                <button
+                    style="
+                        width:100%;
+                        background:#27ae60;
+                        color:white;
+                        padding:10px;
+                        border:none;
+                        border-radius:4px;
+                        cursor:pointer;
+                    "
+                    onclick="importarEquipe()"
+                >
+                    Importar Lista
+                </button>
+
+            </div>
+
+        </aside>
+
+        <main>
+
+            <div
+                class="card"
+                id="card-list"
+            >
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                ">
+
+                    <h2 id="list-title">
+                        Equipe
+                    </h2>
+
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        gap:10px;
+                    ">
+
+                        <input
+                            type="text"
+                            id="filtro_horario"
+                            placeholder="Filtrar horário..."
+                            onkeyup="listarEquipe()"
+                            style="width:180px;"
+                        >
+
+                        <button
+                            class="btn-config"
+                            onclick="
+                                document
+                                    .getElementById('card-list')
+                                    .classList
+                                    .toggle('show-manage')
+                            "
+                        >
+                            ⚙️
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="btn-mass-delete"
+                    onclick="excluirMassaEquipe()"
+                >
+                    🗑️ Excluir Selecionados
+                </button>
+
+                <table>
+
+                    <thead id="head-equipe"></thead>
+
+                    <tbody id="lista-equipe"></tbody>
+
+                </table>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        const API = "http://localhost:5000";
+
+        let tipoAtual = 'tecnico';
+
+        function setTipo(t) {
+
+            tipoAtual = t;
+
+            document
+                .getElementById('btn-tec')
+                .classList
+                .toggle(
+                    'active',
+                    t === 'tecnico'
+                );
+
+            document
+                .getElementById('btn-moto')
+                .classList
+                .toggle(
+                    'active',
+                    t === 'motoboy'
+                );
+
+            document
+                .getElementById('id_ref')
+                .placeholder =
+                    t === 'tecnico'
+                    ? 'Matrícula'
+                    : 'CPF';
+
+            document
+                .getElementById('extra-field')
+                .style
+                .display =
+                    t === 'tecnico'
+                    ? 'none'
+                    : 'block';
+
+            document
+                .getElementById('form-title')
+                .innerText =
+                    t === 'tecnico'
+                    ? 'Cadastrar Técnico'
+                    : 'Cadastrar Motoboy';
+
+            document
+                .getElementById('list-title')
+                .innerText =
+                    t === 'tecnico'
+                    ? 'Técnicos Disponíveis'
+                    : 'Motoboys Disponíveis';
+
+            listarEquipe();
+        }
+
+        async function listarEquipe() {
+
+            const h =
+                document.getElementById(
+                    'filtro_horario'
+                ).value;
+
+            const res = await fetch(
+                `${API}/listar_equipe/${tipoAtual}?horario=${h}`
+            );
+
+            const dados = await res.json();
+
+            document.getElementById(
+                'head-equipe'
+            ).innerHTML = `
+                <tr>
+
+                    <th class="col-check">
+                        <input
+                            type="checkbox"
+                            onclick="marcarTodos(this)"
+                        >
+                    </th>
+
+                    <th>
+                        ${
+                            tipoAtual === 'tecnico'
+                            ? 'Matrícula'
+                            : 'CPF'
+                        }
+                    </th>
+
+                    <th>Nome</th>
+
+                    ${
+                        tipoAtual === 'motoboy'
+                        ? '<th>Placa</th>'
+                        : ''
+                    }
+
+                    <th>Turno</th>
+
+                </tr>
+            `;
+
+            document.getElementById(
+                'lista-equipe'
+            ).innerHTML = dados.map(m => `
+                <tr>
+
+                    <td class="col-check">
+
+                        <input
+                            type="checkbox"
+                            class="check-item"
+                            value="${
+                                m.matricula || m.cpf
+                            }"
+                        >
+
+                    </td>
+
+                    <td>
+                        ${m.matricula || m.cpf}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${m.nome_completo}
+                        </strong>
+                    </td>
+
+                    ${
+                        tipoAtual === 'motoboy'
+                        ? `
+                            <td>
+                                ${m.placa_veiculo}
+                            </td>
+                        `
+                        : ''
+                    }
+
+                    <td>
+                        ${m.horario_trabalho}
+                    </td>
+
+                </tr>
+            `).join('');
+        }
+
+        async function salvarEquipe() {
+
+            const d = {
+
+                nome:
+                    document.getElementById(
+                        'nome'
+                    ).value,
+
+                id_ref:
+                    document.getElementById(
+                        'id_ref'
+                    ).value,
+
+                horario:
+                    document.getElementById(
+                        'horario'
+                    ).value,
+
+                placa:
+                    document.getElementById(
+                        'placa'
+                    ).value
+            };
+
+            await fetch(
+                `${API}/cadastrar_equipe/${tipoAtual}`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify(d)
+                }
+            );
+
+            listarEquipe();
+
+            document.getElementById(
+                'nome'
+            ).value = '';
+
+            document.getElementById(
+                'id_ref'
+            ).value = '';
+
+            document.getElementById(
+                'placa'
+            ).value = '';
+
+            document.getElementById(
+                'horario'
+            ).selectedIndex = 0;
+        }
+
+        function marcarTodos(s) {
+
+            document
+                .querySelectorAll('.check-item')
+                .forEach(c => c.checked = s.checked);
+        }
+
+        async function excluirMassaEquipe() {
+
+            const ids = Array.from(
+                document.querySelectorAll(
+                    '.check-item:checked'
+                )
+            ).map(cb => cb.value);
+
+            if (
+                ids.length > 0
+                && confirm("Excluir?")
+            ) {
+
+                await fetch(
+                    `${API}/excluir_massa_equipe/${tipoAtual}`,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({ ids })
+                    }
+                );
+
+                listarEquipe();
+            }
+        }
+
+        async function importarEquipe() {
+
+            const fd = new FormData();
+
+            fd.append(
+                'file',
+                document.getElementById(
+                    'csv_equipe'
+                ).files[0]
+            );
+
+            await fetch(
+                `${API}/importar/${tipoAtual}`,
+                {
+                    method: 'POST',
+                    body: fd
+                }
+            );
+
+            listarEquipe();
+
+            document.getElementById(
+                'csv_equipe'
+            ).value = '';
+        }
+
+        window.onload = () => {
+
+            lucide.createIcons();
+
+            setTipo('tecnico');
+        };
+
+    </script>
+
+</body>
+</html>
