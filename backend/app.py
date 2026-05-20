@@ -22,10 +22,10 @@ def calc_distancia(lat1, lon1, lat2, lon2):
 
 def get_db():
     return pymysql.connect(
-        host='localhost',
-        user='root',
-        password='1945',
-        database='arkus_db',
+        host='DB_HOST',
+        user='DB_USER',
+        password='DB_PASSWORD',
+        database='DB_NAME',
         cursorclass=pymysql.cursors.DictCursor
     )
 
