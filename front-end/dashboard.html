@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ARKUS - Dashboard Gerencial</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { 
+            --bg: #1a1d23; 
+            --card: #252a33; 
+            --accent: #3498db; 
+            --text: #ecf0f1; 
+            --status-verde: #2ecc71;
+            --status-amarelo: #f1c40f;
+            --status-vermelho: #e74c3c;
+        }
+        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; min-height: 100vh; }
+
+        aside { width: 260px; background: var(--card); border-right: 2px solid #343b47; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3); transition: width 0.3s ease; z-index: 1000; overflow-x: hidden; }
+        aside.minimizado { width: 80px; padding: 20px 10px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; padding: 0 5px; }
+        aside.minimizado .sidebar-header { justify-content: center; }
+        .titulo-sistema { font-size: 20px; font-weight: bold; color: var(--text); letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.2s ease, width 0.2s ease; }
+        .titulo-sistema span { color: var(--accent); }
+        aside.minimizado .titulo-sistema { opacity: 0; pointer-events: none; width: 0; margin: 0; display: none; }
+        .btn-toggle-sidebar { background: transparent; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; min-width: 40px; transition: all 0.2s; }
+        .btn-toggle-sidebar:hover { background: #343b47; color: var(--accent); }
+        nav { display: flex; flex-direction: column; gap: 15px; }
+        nav a { color: var(--text); text-decoration: none; font-weight: bold; opacity: 0.6; display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 6px; transition: all 0.3s ease; white-space: nowrap; }
+        nav a:hover { opacity: 0.9; background: rgba(52, 152, 219, 0.05); color: var(--accent); }
+        nav a.active { opacity: 1; color: var(--text); background: var(--accent); }
+        nav a span { transition: opacity 0.2s ease; }
+        aside.minimizado nav a { justify-content: center; padding: 12px 0; }
+        aside.minimizado nav a span { opacity: 0; width: 0; visibility: hidden; }
+
+        .conteudo-principal { flex: 1; padding: 30px; box-sizing: border-box; overflow-y: auto; }
+        
+        .header-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #343b47; padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+        .header-dash h2 { margin: 0; font-size: 24px; }
+        
+        input[type="month"] { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+
+        .container-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .card-kpi { background: var(--card); padding: 20px; border-radius: 8px; border-bottom: 4px solid var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .card-kpi h4 { margin: 0; font-size: 13px; color: #95a5a6; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-kpi .valor { font-size: 26px; font-weight: bold; margin: 8px 0; color: #fff; }
+        .card-kpi p { margin: 0; font-size: 12px; color: #bdc3c7; }
+
+        .dashboard-layout { display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 30px; }
+        .coluna-grafico { flex: 2; min-width: 500px; background: var(--card); padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .coluna-regioes { flex: 1; min-width: 300px; }
+
+        .barra-progresso-bairro { background: #343b47; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+        .preenchimento-bairro { background: var(--accent); height: 100%; border-radius: 4px; transition: width 1s ease-out; }
+        .regiao-info { display: flex; justify-content: space-between; font-size: 14px; }
+
+        .grid-semana { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .card-dia { background: var(--card); border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-top: 4px solid #444; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+        .status-dot { width: 14px; height: 14px; border-radius: 50%; background: #444; }
+        .status-verde { background: var(--status-verde); box-shadow: 0 0 12px var(--status-verde); }
+        .status-amarelo { background: var(--status-amarelo); box-shadow: 0 0 12px var(--status-amarelo); }
+        .status-vermelho { background: var(--status-vermelho); box-shadow: 0 0 12px var(--status-vermelho); }
+
+        .destaque { font-size: 28px; font-weight: bold; color: #fff; margin: 10px 0; }
+        .mensagem-alerta { padding: 10px; border-radius: 6px; font-size: 13px; font-weight: bold; background: #1a1d23; }
+        .msg-verde { color: var(--status-verde); border-left: 3px solid var(--status-verde); }
+        .msg-amarelo { color: var(--status-amarelo); border-left: 3px solid var(--status-amarelo); }
+        .msg-vermelho { color: var(--status-vermelho); border-left: 3px solid var(--status-vermelho); }
+
+        .card-regioes { background: var(--card); border-radius: 10px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-top: 4px solid var(--accent); height: 100%; box-sizing: border-box; }
+        .card-regioes h3 { margin-top: 0; color: var(--text); display: flex; align-items: center; gap: 10px; font-size: 18px; margin-bottom: 20px;}
+        .regiao-item { padding: 12px 0; border-bottom: 1px solid #343b47; }
+        .regiao-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebarArkus">
+        <div class="sidebar-header">
+            <div class="titulo-sistema"><span>ARKUS</span> | Menu</div>
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+        </div>
+        <nav>
+    <a href="index.html"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
+    <a href="tecnicos.html"><i data-lucide="users"></i><span>Gestão de Equipe</span></a>
+    <a href="rotas.html"><i data-lucide="route"></i><span>Rotas</span></a>
+    <a href="mapa_rotas.html"><i data-lucide="map"></i><span>Mapa de Rotas</span></a>
+    <a href="dashboard.html" class="active"><i data-lucide="bar-chart-3"></i><span>Dashboard Gerencial</span></a>
+    
+    <hr style="border: none; border-top: 1.5px solid #343b47; margin: 10px 0;">
+    <a href="#" onclick="fazerLogout()" style="color: #e74c3c; opacity: 0.85;">
+        <i data-lucide="log-out" style="color: #e74c3c;"></i><span>Sair do Sistema</span>
+    </a>
+</nav>
+    </aside>
+
+    <div class="conteudo-principal">
+       <div class="header-dash">
+            <div>
+                <h2>Previsão de Capacidade Operacional</h2>
+                <div style="color: #95a5a6; font-size: 14px; margin-top: 5px;">
+                    <i data-lucide="info" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;"></i>
+                    Análise e monitoramento dinâmico de capacidade produtiva para decisões comerciais.
+                </div>
+                <div style="color: #95a5a6; font-size: 13px; margin-top: 4px; opacity: 0.8;">
+                    👨‍⚕️ Capacidade calculada contra <strong id="qtd-equipe" style="color: var(--accent);">...</strong> profissionais activos no banco de dados.
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; background: #252a33; border: 1px solid #343b47; border-radius: 6px; padding: 4px; user-select: none; transition: border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#343b47'">
+                <button onclick="mudarMes(-1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 10px; border-radius: 4px; display: flex; align-items: center; transition: all 0.2s;"><i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i></button>
+                
+                <div onclick="document.getElementById('mesFiltro').showPicker()" style="display: flex; align-items: center; gap: 8px; padding: 0 12px; cursor: pointer; color: white; font-weight: bold; font-family: 'Segoe UI', sans-serif; font-size: 14px;">
+                    <i data-lucide="calendar" style="width: 16px; color: var(--accent);"></i>
+                    <span id="txtMesExibicao">Carregando...</span>
+                </div>
+                
+                <input type="month" id="mesFiltro" onchange="atualizarTextoMes(); carregarDashboard();" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+                
+                <button onclick="mudarMes(1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 10px; border-radius: 4px; display: flex; align-items: center; transition: all 0.2s;"><i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i></button>
+            </div>
+        </div>
+
+        <div class="container-kpis">
+            <div class="card-kpi">
+                <h4>Ocupação Geral do Mês</h4>
+                <div class="valor" id="kpi-ocupacao">0%</div>
+                <p>Uso da capacidade útil máxima da frota</p>
+            </div>
+            <div class="card-kpi" style="border-bottom-color: #2ecc71;">
+                <h4>Produtividade Operacional</h4>
+                <div class="valor" id="kpi-produtividade">0 / dia</div>
+                <p>Média diária de atendimentos por colaborador</p>
+            </div>
+            <div class="card-kpi" style="border-bottom-color: #e67e22;">
+                <h4>Disponibilidade de Vagas</h4>
+                <div class="valor" id="kpi-gargalo">Analisando...</div>
+                <p>Volume total de horários livres no período</p>
+            </div>
+        </div>
+
+        <div class="dashboard-layout">
+            <div class="coluna-grafico">
+                <h3 style="margin-top:0; font-size:16px; color:#95a5a6; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="trending-up" style="color:var(--accent); width: 18px;"></i> Crescimento de Demanda por Turno
+                </h3>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="graficoHistorico"></canvas>
+                </div>
+            </div>
+
+            <div class="coluna-regioes">
+                <div class="card-regioes">
+                    <h3><i data-lucide="map-pin" style="color: var(--accent);"></i> Zonas de Alta Demanda</h3>
+                    <div id="listaRegioes"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-semana" id="painelSemana"></div>
+    </div>
+
+    <script>
+        const API = "http://localhost:5000";
+        let instanciaGrafico = null;
+
+        function toggleSidebar() { 
+            const sidebar = document.getElementById('sidebarArkus');
+            sidebar.classList.toggle('minimizado'); 
+            
+            if (sidebar.classList.contains('minimizado')) {
+                localStorage.setItem('arkus_sidebar', 'fechada');
+            } else {
+                localStorage.setItem('arkus_sidebar', 'aberta');
+            }
+        }
+
+        window.onload = () => {
+            lucide.createIcons();
+            
+            if (localStorage.getItem('arkus_sidebar') === 'fechada') {
+                document.getElementById('sidebarArkus').classList.add('minimizado');
+            }
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('arkus_sidebar', 'fechada');
+                });
+            });
+            
+            const hoje = new Date();
+            const mesAtual = hoje.toISOString().substring(0, 7); 
+            document.getElementById('mesFiltro').value = mesAtual;
+            atualizarTextoMes();
+            
+            carregarDashboard();
+        };
+
+        function atualizarTextoMes() {
+            const val = document.getElementById('mesFiltro').value;
+            if (!val) return;
+            const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const [ano, mes] = val.split('-');
+            document.getElementById('txtMesExibicao').innerText = `${mesesNomes[parseInt(mes)-1]} de ${ano}`;
+        }
+
+        function mudarMes(direcao) {
+            const input = document.getElementById('mesFiltro');
+            if (!input.value) return;
+            
+            let [ano, mes] = input.value.split('-').map(Number);
+            let data = new Date(ano, mes - 1 + direcao, 1);
+            
+            let novoAno = data.getFullYear();
+            let novoMes = String(data.getMonth() + 1).padStart(2, '0');
+            
+            input.value = `${novoAno}-${novoMes}`;
+            atualizarTextoMes();
+            carregarDashboard();
+        }
+
+        async function carregarDashboard() {
+            const mesSel = document.getElementById('mesFiltro').value;
+            if (!mesSel) return;
+
+            const painelRegioes = document.getElementById('listaRegioes');
+
+            try {
+                const timestamp = new Date().getTime();
+                const res = await fetch(`${API}/api/dashboard?mes=${mesSel}&t=${timestamp}`, { cache: 'no-store' });
+                const dados = await res.json();
+
+                document.getElementById('qtd-equipe').innerText = dados.equipe_ativa || 0;
+
+                document.getElementById('kpi-ocupacao').innerText = `${dados.kpis.ocupacao}%`;
+                document.getElementById('kpi-produtividade').innerText = `${dados.kpis.produtividade} / dia`;
+                
+                const txtVagas = dados.kpis.vagas >= 0 ? `+${dados.kpis.vagas} vagas livres` : `${dados.kpis.vagas} vagas (Falta)`;
+                document.getElementById('kpi-gargalo').innerText = txtVagas;
+
+                const ctx = document.getElementById('graficoHistorico').getContext('2d');
+                if (instanciaGrafico) { instanciaGrafico.destroy(); }
+                
+                instanciaGrafico = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dados.historico.meses,
+                        datasets: [
+                            { label: 'Turno Manhã', data: dados.historico.manha, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', tension: 0.3, fill: true },
+                            { label: 'Turno Tarde', data: dados.historico.tarde, borderColor: '#9b59b6', backgroundColor: 'rgba(155, 89, 182, 0.1)', tension: 0.3, fill: true }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#ecf0f1' } } },
+                        scales: {
+                            x: { grid: { color: '#343b47' }, ticks: { color: '#ecf0f1' } },
+                            y: { grid: { color: '#343b47' }, ticks: { color: '#ecf0f1' } }
+                        }
+                    }
+                });
+
+                painelRegioes.innerHTML = "";
+                if(dados.regioes && dados.regioes.length > 0) {
+                    dados.regioes.forEach((regiao, index) => {
+                        painelRegioes.innerHTML += `
+                            <div class="regiao-item">
+                                <div class="regiao-info">
+                                    <span><strong>${index + 1}º</strong> ${regiao.nome}</span>
+                                    <span style="color:var(--accent); font-weight:bold;">${regiao.quantidade} un</span>
+                                </div>
+                                <div class="barra-progresso-bairro">
+                                    <div class="preenchimento-bairro" style="width: ${regiao.percentual}%;"></div>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    painelRegioes.innerHTML = "<p style='color:#7f8c8d; font-size:13px;'>Sem dados geográficos.</p>";
+                }
+
+                const painelSemanas = document.getElementById('painelSemana');
+                let classeMsg = dados.status_mes === 'verde' ? 'msg-verde' : (dados.status_mes === 'amarelo' ? 'msg-amarelo' : 'msg-vermelho');
+                let corBorda = dados.status_mes === 'verde' ? 'var(--status-verde)' : (dados.status_mes === 'amarelo' ? 'var(--status-amarelo)' : 'var(--status-vermelho)');
+
+                painelSemanas.innerHTML = `
+                    <div class="card-dia" style="border-top-color: ${corBorda};">
+                        <div class="card-header">
+                            <span style="font-weight:bold; font-size:16px;">${dados.label_comercial}</span>
+                            <div class="status-dot status-${dados.status_mes}"></div>
+                        </div>
+                        <div style="display:flex; justify-content: space-between; align-items:center; margin-top:15px; flex-wrap:wrap; gap:15px;">
+                            <div>
+                                <span style="color:#95a5a6; font-size:14px;">Total de Agendamentos no Período</span>
+                                <div class="destaque" style="margin:5px 0 0 0;">${dados.total_demandas} <span style="font-size:14px; color:#7f8c8d; font-weight:normal;">solicitações de um limite de ${dados.limite_mensal}</span></div>
+                            </div>
+                            <div class="mensagem-alerta ${classeMsg}" style="font-size:14px; padding:15px; flex:1; text-align:center; max-width:500px;">
+                                ${dados.mensagem_status}
+                            </div>
+                        </div>
+                    </div>`;
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error("Erro ao carregar os dados do painel:", error);
+            }
+        }
+
+        function fazerLogout() {
+            if (confirm("Deseja realmente sair do Arkus?")) {
+                localStorage.removeItem('arkus_usuario'); 
+                window.location.href = "login.html"; 
+            }
+        }
+    </script>
+</body>
+</html>
