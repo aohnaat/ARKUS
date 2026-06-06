@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>ARKUS - Agendamentos</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root { 
@@ -10,193 +11,214 @@
             --card: #252a33; 
             --accent: #3498db; 
             --text: #ecf0f1; 
+            --neon-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
         }
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: var(--bg); 
             color: var(--text); 
             margin: 0; 
-            padding: 20px; 
-        }
-        nav { 
-            background: var(--card); 
-            padding: 15px 40px; 
-            margin-bottom: 30px; 
-            display: flex; 
-            gap: 30px; 
-            border-bottom: 2px solid #343b47; 
-        }
-        nav a { 
-            color: var(--text); 
-            text-decoration: none; 
-            font-weight: bold; 
-            opacity: 0.6; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-        }
-        nav a.active { 
-            opacity: 1; 
-            color: var(--accent); 
-            border-bottom: 2px solid var(--accent); 
-        }
-        .titulo-sistema { 
-            font-size: 24px; 
-            font-weight: bold; 
-            color: var(--accent); 
-            margin-bottom: 15px; 
-        }
-        
-        .container { display: flex; gap: 20px; }
-        
-        .sidebar { 
-            width: 300px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
-        
-        .card-box { 
-            background: var(--card); 
-            padding: 20px; 
-            border-radius: 8px; 
-            border-left: 4px solid var(--accent); 
+            padding: 0; 
+            display: flex;
+            min-height: 100vh;
         }
 
-        .main-content { 
-            flex: 1; 
-            background: var(--card); 
-            padding: 20px; 
-            border-radius: 8px; 
-        }
+        aside { width: 260px; background: var(--card); border-right: 2px solid #343b47; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3); transition: width 0.3s ease; z-index: 1000; overflow-x: hidden; }
+        aside.minimizado { width: 80px; padding: 20px 10px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; padding: 0 5px; }
+        aside.minimizado .sidebar-header { justify-content: center; }
+        .titulo-sistema { font-size: 20px; font-weight: bold; color: var(--text); letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.2s ease, width 0.2s ease; }
+        .titulo-sistema span { color: var(--accent); }
+        aside.minimizado .titulo-sistema { opacity: 0; pointer-events: none; width: 0; margin: 0; display: none; }
+        .btn-toggle-sidebar { background: transparent; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; min-width: 40px; transition: all 0.2s; }
+        .btn-toggle-sidebar:hover { background: #343b47; color: var(--accent); }
+        nav { display: flex; flex-direction: column; gap: 15px; }
+        nav a { color: var(--text); text-decoration: none; font-weight: bold; opacity: 0.6; display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 6px; transition: all 0.3s ease; white-space: nowrap; }
+        nav a:hover { opacity: 0.9; background: rgba(52, 152, 219, 0.05); color: var(--accent); }
+        nav a.active { opacity: 1; color: var(--text); background: var(--accent); }
+        nav a span { transition: opacity 0.2s ease; }
+        aside.minimizado nav a { justify-content: center; padding: 12px 0; }
+        aside.minimizado nav a span { opacity: 0; width: 0; visibility: hidden; }
 
-        input, select { 
-            width: 100%; 
-            padding: 10px; 
-            margin-bottom: 15px; 
-            background: #343b47; 
-            color: white; 
-            border: 1px solid #444; 
-            border-radius: 4px; 
-            box-sizing: border-box; 
-        }
+        .conteudo-principal { flex: 1; padding: 30px; box-sizing: border-box; overflow-x: auto; }
+        .container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .sidebar-form { width: 300px; display: flex; flex-direction: column; gap: 20px; }
+        .card-box { background: var(--card); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .main-content { flex: 1; background: var(--card); padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); min-width: 500px; }
+
+        input, select { width: 100%; padding: 10px; margin-bottom: 15px; background: #343b47; color: white; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); }
         
-        button.btn-primary { 
-            width: 100%; 
-            padding: 10px; 
-            background: var(--accent); 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: bold; 
-        }
+        button.btn-primary { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        button.btn-primary:hover { background: #2980b9; }
+        
+        button.btn-success { width: 100%; padding: 10px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        button.btn-success:hover { background: #27ae60; box-shadow: 0 0 10px rgba(46, 204, 113, 0.4); }
 
-        button.btn-success { 
-            width: 100%; 
-            padding: 10px; 
-            background: #2ecc71; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: bold; 
-        }
-
-        .header-list { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-        }
+        .header-list { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .header-list h2 { margin: 0; }
-        .header-list div { display: flex; gap: 10px; align-items: center; }
-        .btn-config { background: transparent; border: none; font-size: 20px; cursor: pointer; padding: 0; color: #bbb;}
 
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #343b47; font-size: 14px; }
         th { color: #bbb; }
+
+        .show-manage .col-check { display: table-cell !important; }
+        .show-manage .btn-mass-delete { display: block !important; }
     </style>
 </head>
 <body>
-    <div class="titulo-sistema">ARKUS | Sistema de Roteirização Domiciliar</div>
-    
-    <nav>
-        <a href="index.html" class="active"><i data-lucide="calendar"></i>Agendamentos</a>
-        <a href="tecnicos.html"><i data-lucide="users"></i>Gestão de Equipe</a>
-        <a href="rotas.html"><i data-lucide="route"></i>Rotas</a>
-    </nav>
 
-    <div class="container">
-        <div class="sidebar">
-            <div class="card-box">
-                <h3 style="margin-top: 0;">Nova Solicitação</h3>
-                <input type="text" placeholder="Nome do Paciente" id="nome">
-                <input type="text" placeholder="Endereço" id="endereco">
-                <select id="turno">
-                    <option value="Manhã">Manhã</option>
-                    <option value="Tarde">Tarde</option>
-                </select>
-                <select id="tipo">
-                    <option value="Coleta">Coleta</option>
-                    <option value="Retirada">Retirada</option>
-                </select>
-                <input type="time" id="preferencia">
-                <input type="date" id="data">
-                <button class="btn-primary">Salvar</button>
-            </div>
-
-            <div class="card-box" style="border-left-color: #2ecc71;">
-                <h3 style="margin-top: 0;">Importar CSV</h3>
-                <input type="file" id="file_csv" style="margin-bottom: 15px; padding: 0; background: transparent; border: none;">
-                <button class="btn-success" onclick="importarCSV()">Importar arquivo</button>
-            </div>
+    <aside id="sidebarArkus">
+        <div class="sidebar-header">
+            <div class="titulo-sistema"><span>ARKUS</span> | Menu</div>
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
         </div>
+       <nav>
+    <a href="index.html"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
+    <a href="tecnicos.html"><i data-lucide="users"></i><span>Gestão de Equipe</span></a>
+    <a href="rotas.html"><i data-lucide="route"></i><span>Rotas</span></a>
+    <a href="mapa_rotas.html"><i data-lucide="map"></i><span>Mapa de Rotas</span></a>
+    <a href="dashboard.html"><i data-lucide="bar-chart-3"></i><span>Dashboard Gerencial</span></a>
+    
+    <hr style="border: none; border-top: 1.5px solid #343b47; margin: 10px 0;">
+    <a href="#" onclick="fazerLogout()" style="color: #e74c3c; opacity: 0.85;">
+        <i data-lucide="log-out" style="color: #e74c3c;"></i><span>Sair do Sistema</span>
+    </a>
+</nav>
+    </aside>
 
-        <div class="main-content">
-            <div class="header-list">
-                <h2>Coletas Solicitadas</h2>
-                <div>
-                    <input type="date" id="filtro_data" onchange="listar()" style="width: 150px; margin-bottom: 0;">
-                    <button class="btn-config">⚙️</button>
+    <div class="conteudo-principal">
+        <div class="container">
+            <div class="sidebar-form">
+                <div class="card-box">
+                    <h3 style="margin-top: 0;">Nova Solicitação</h3>
+                    <input type="text" placeholder="Nome do Paciente" id="nome">
+                    <input type="text" placeholder="Endereço" id="endereco">
+                    <select id="turno">
+                        <option value="Manhã">Manhã</option>
+                        <option value="Tarde">Tarde</option>
+                    </select>
+                    <select id="tipo">
+                        <option value="Coleta">Coleta</option>
+                        <option value="Retirada">Retirada</option>
+                    </select>
+                    <input type="time" id="preferencia">
+                    <input type="date" id="data">
+                    <button class="btn-primary">Salvar</button>
+                </div>
+
+                <div class="card-box" style="border-left-color: #2ecc71;">
+                    <h3 style="margin-top: 0;">Importar CSV</h3>
+                    <input type="file" id="file_csv" style="margin-bottom: 15px; padding: 0; background: transparent; border: none;">
+                    <button class="btn-success" onclick="importarCSV()">Importar arquivo</button>
                 </div>
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Paciente</th>
-                        <th>Endereço</th>
-                        <th>Data</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="lista">
-                </tbody>
-            </table>
+            <div class="main-content">
+                <div class="header-list">
+                    <h2>Coletas Solicitadas</h2>
+                    
+                    <div style="display: flex; align-items: center; background: #1a1d23; border: 1px solid #343b47; border-radius: 6px; padding: 3px; user-select: none; transition: border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#343b47'">
+                        <button onclick="mudarDia(-1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 8px; border-radius: 4px; display: flex; align-items: center;"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button>
+                        
+                        <div onclick="document.getElementById('dataFiltro').showPicker()" style="display: flex; align-items: center; gap: 8px; padding: 0 10px; cursor: pointer; color: white; font-weight: bold; font-family: 'Segoe UI', sans-serif; font-size: 13.5px;">
+                            <i data-lucide="calendar" style="width: 15px; color: var(--accent);"></i>
+                            <span id="txtDataExibicao">--/--/----</span>
+                        </div>
+                        
+                        <input type="date" id="dataFiltro" onchange="atualizarTextoData(); listar();" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+                        
+                        <button onclick="mudarDia(1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 8px; border-radius: 4px; display: flex; align-items: center;"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button>
+                    </div>
+                </div>
+
+                <div id="card-list-coletas">
+                    <button class="btn-mass-delete" onclick="excluirMassaColetas()" style="display: none; background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; float: right; margin-bottom: 10px;">
+                        🗑️ Excluir Selecionados
+                    </button>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="col-check" style="display: none;"><input type="checkbox" onclick="marcarTodasColetas(this)"></th>
+                                <th>Paciente</th>
+                                <th>Endereço</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const API = "http://localhost:5000";
 
+        function toggleSidebar() { 
+            const sidebar = document.getElementById('sidebarArkus');
+            sidebar.classList.toggle('minimizado'); 
+            
+            if (sidebar.classList.contains('minimizado')) {
+                localStorage.setItem('arkus_sidebar', 'fechada');
+            } else {
+                localStorage.setItem('arkus_sidebar', 'aberta');
+            }
+        }
+
         window.onload = () => {
             lucide.createIcons();
+            document.getElementById('dataFiltro').valueAsDate = new Date();
+            atualizarTextoData();
+            
+            if (localStorage.getItem('arkus_sidebar') === 'fechada') {
+                document.getElementById('sidebarArkus').classList.add('minimizado');
+            }
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('arkus_sidebar', 'fechada');
+                });
+            });
+
             listar();
         };
 
-        async function listar() {
-            const f = document.getElementById('filtro_data').value;
-            let query = f ? `?data=${f}` : "";
+        function atualizarTextoData() {
+            const val = document.getElementById('dataFiltro').value;
+            if (!val) return;
+            const [ano, mes, dia] = val.split('-');
+            document.getElementById('txtDataExibicao').innerText = `${dia}/${mes}/${ano}`;
+        }
 
+        function mudarDia(direcao) {
+            const input = document.getElementById('dataFiltro');
+            if (!input.value) return;
+            
+            let data = new Date(input.value + 'T00:00:00');
+            data.setDate(data.getDate() + direcao);
+            
+            input.value = data.toISOString().split('T')[0];
+            atualizarTextoData();
+            listar(); 
+        }
+
+        async function listar() {
+            const f = document.getElementById('dataFiltro').value;
+            let query = f ? `?data=${f}` : "";
             try {
                 const res = await fetch(`${API}/listar_coletas${query}`);
                 const dados = await res.json();
                 
                 document.getElementById('lista').innerHTML = dados.map(c => {
                     const dataFormatada = new Date(c.data_agendamento).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                    
                     return `<tr>
+                        <td class="col-check" style="display: none;">
+                            <input type="checkbox" class="check-item-coleta" value="${c.id}">
+                        </td>
                         <td><strong>${c.nome}</strong></td>
                         <td>${c.endereco}</td>
                         <td>${dataFormatada}</td>
@@ -204,8 +226,27 @@
                     </tr>`;
                 }).join('');
                 
-            } catch (error) {
-                console.error(error);
+                if (document.getElementById('card-list-coletas').classList.contains('show-manage')) {
+                    document.querySelectorAll('.col-check').forEach(el => el.style.display = 'table-cell');
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        function marcarTodasColetas(s) { document.querySelectorAll('.check-item-coleta').forEach(c => c.checked = s.checked); }
+
+        async function excluirMassaColetas() {
+            const ids = Array.from(document.querySelectorAll('.check-item-coleta:checked')).map(cb => parseInt(cb.value));
+            if (ids.length === 0) return alert("Selecione ao menos um agendamento!");
+
+            if (confirm(`Deseja realmente excluir estes ${ids.length} agendamentos?`)) {
+                try {
+                    const res = await fetch(`${API}/excluir_massa_coletas`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids })
+                    });
+                    if (res.ok) { alert("Agendamentos excluídos com sucesso!"); listar(); }
+                } catch (error) { alert("Erro ao excluir agendamentos."); }
             }
         }
 
@@ -215,27 +256,22 @@
 
             const formData = new FormData();
             formData.append("file", fileInput.files[0]);
-
             const btn = document.querySelector('.btn-success');
-            const textoOriginal = btn.innerText;
             btn.innerText = "Importando...";
 
             try {
-                const req = await fetch(`${API}/importar/coletas`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if(req.ok) {
-                    listar(); 
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                btn.innerText = textoOriginal;
-                fileInput.value = ''; 
+                const req = await fetch(`${API}/importar/coletas`, { method: 'POST', body: formData });
+                if(req.ok) { listar(); }
+            } catch (error) { console.error(error); } finally { btn.innerText = "Importar arquivo"; fileInput.value = ''; }
+        }
+
+        function fazerLogout() {
+            if (confirm("Deseja realmente sair do Arkus?")) {
+                localStorage.removeItem('arkus_usuario'); 
+                window.location.href = "login.html"; 
             }
         }
+
     </script>
 </body>
 </html>
