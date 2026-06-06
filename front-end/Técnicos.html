@@ -1,22 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <meta charset="UTF-8">
-
     <title>ARKUS - Equipe</title>
-
-    <link
-        rel="icon"
-        type="image/png"
-        href="logo.png"
-    >
-
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-
         :root {
             --bg: #1a1d23;
             --card: #252a33;
@@ -24,632 +13,253 @@
             --text: #ecf0f1;
             --danger: #e74c3c;
         }
-
         body {
             font-family: 'Segoe UI', sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 20px;
-        }
-
-        nav {
-            background: #252a33;
-            padding: 15px 40px;
-            margin-bottom: 30px;
+            padding: 0;
             display: flex;
-            gap: 30px;
-            border-bottom: 2px solid #343b47;
+            min-height: 100vh;
         }
 
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: bold;
-            opacity: 0.6;
+        aside { width: 260px; background: var(--card); border-right: 2px solid #343b47; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3); transition: width 0.3s ease; z-index: 1000; overflow-x: hidden; }
+        aside.minimizado { width: 80px; padding: 20px 10px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; padding: 0 5px; }
+        aside.minimizado .sidebar-header { justify-content: center; }
+        .titulo-sistema { font-size: 20px; font-weight: bold; color: var(--text); letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.2s ease, width 0.2s ease; }
+        .titulo-sistema span { color: var(--accent); }
+        aside.minimizado .titulo-sistema { opacity: 0; pointer-events: none; width: 0; margin: 0; display: none; }
+        .btn-toggle-sidebar { background: transparent; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; min-width: 40px; transition: all 0.2s; }
+        .btn-toggle-sidebar:hover { background: #343b47; color: var(--accent); }
+        nav { display: flex; flex-direction: column; gap: 15px; }
+        nav a { color: var(--text); text-decoration: none; font-weight: bold; opacity: 0.6; display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 6px; transition: all 0.3s ease; white-space: nowrap; }
+        nav a:hover { opacity: 0.9; background: rgba(52, 152, 219, 0.05); color: var(--accent); }
+        nav a.active { opacity: 1; color: var(--text); background: var(--accent); }
+        nav a span { transition: opacity 0.2s ease; }
+        aside.minimizado nav a { justify-content: center; padding: 12px 0; }
+        aside.minimizado nav a span { opacity: 0; width: 0; visibility: hidden; }
+
+        .conteudo-principal { flex: 1; padding: 30px; box-sizing: border-box; }
+        .grid { display: grid; grid-template-columns: 350px 1fr; gap: 25px; }
+        .card { background: var(--card); padding: 25px; border-radius: 8px; border-top: 4px solid var(--accent); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+       
+        .tab-btn { background: transparent; padding: 8px 18px; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .tab-btn:hover { background: rgba(52, 152, 219, 0.05); }
+        .tab-btn.active { background: var(--accent); color: white; }
+        .btn-config { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text); opacity: 0.5; transition: opacity 0.2s; }
+        .btn-config:hover { opacity: 0.9; }
+
+        input, select { width: 100%; padding: 10px; margin: 8px 0; background: #343b47; color: white; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #343b47; font-size: 14px; }
+        th { color: #95a5a6; font-weight: bold; }
+       
+        .col-check { display: none; }
+        .show-manage .col-check { display: table-cell; }
+        .btn-mass-delete { display: none; background: var(--danger); color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; float: right; margin-bottom: 10px; }
+        .show-manage .btn-mass-delete { display: block; }
+
+        .search-box-wrapper {
             display: flex;
             align-items: center;
-            gap: 10px;
+            background: #1a1d23;
+            border: 1px solid #343b47;
+            border-radius: 6px;
+            padding: 2px 10px;
+            width: 200px;
+            transition: border-color 0.2s;
         }
-
-        nav i {
-            width: 20px;
-            height: 20px;
-            stroke-width: 2.2;
+        .search-box-wrapper:focus-within {
+            border-color: var(--accent);
         }
-
-        nav a.active {
-            opacity: 1;
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 8px;
-            border-top: 4px solid var(--accent);
-            margin-bottom: 20px;
-        }
-
-        .tab-btn {
-            background: #343b47;
-            padding: 8px 20px;
-            color: white;
+        .search-box-wrapper input {
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            opacity: 0.7;
+            background: transparent;
+            margin: 0;
+            padding: 6px 4px;
+            font-size: 13px;
         }
-
-        .tab-btn.active {
-            background: var(--accent);
-            opacity: 1;
-        }
-
-        .btn-config {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 22px;
-            color: var(--text);
-            opacity: 0.5;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            background: #343b47;
-            color: white;
-            border: 1px solid #444;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #343b47;
-        }
-
-        .col-check {
-            display: none;
-        }
-
-        .show-manage .col-check {
-            display: table-cell;
-        }
-
-        .btn-mass-delete {
-            display: none;
-            background: var(--danger);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            float: right;
-            margin-bottom: 10px;
-        }
-
-        .show-manage .btn-mass-delete {
-            display: block;
-        }
-
-        .titulo-sistema {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-        }
-
     </style>
-
 </head>
-
 <body>
 
-    <div class="titulo-sistema">
-        ARKUS | Sistema de Roteirização Domiciliar
-    </div>
+    <aside id="sidebarArkus">
+        <div class="sidebar-header">
+            <div class="titulo-sistema"><span>ARKUS</span> | Menu</div>
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+        </div>
+        <nav>
+    <a href="index.html"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
+    <a href="tecnicos.html"><i data-lucide="users"></i><span>Gestão de Equipe</span></a>
+    <a href="rotas.html"><i data-lucide="route"></i><span>Rotas</span></a>
+    <a href="mapa_rotas.html"><i data-lucide="map"></i><span>Mapa de Rotas</span></a>
+    <a href="dashboard.html"><i data-lucide="bar-chart-3"></i><span>Dashboard Gerencial</span></a>
+   
+    <hr style="border: none; border-top: 1.5px solid #343b47; margin: 10px 0;">
+    <a href="#" onclick="fazerLogout()" style="color: #e74c3c; opacity: 0.85;">
+        <i data-lucide="log-out" style="color: #e74c3c;"></i><span>Sair do Sistema</span>
+    </a>
+</nav>
+    </aside>
 
-    <nav>
-
-        <a href="index.html">
-            <i data-lucide="calendar"></i>
-            Agendamentos
-        </a>
-
-        <a
-            href="tecnicos.html"
-            class="active"
-        >
-            <i data-lucide="users"></i>
-            Gestão de Equipe
-        </a>
-
-        <a href="rotas.html">
-            <i data-lucide="route"></i>
-            Rotas
-        </a>
-
-    </nav>
-
-    <div class="grid">
-
-        <aside>
-
+    <div class="conteudo-principal">
+        <div class="grid">
             <div class="card">
-
-                <div style="
-                    display:flex;
-                    gap:10px;
-                    margin-bottom:15px;
-                ">
-
-                    <button
-                        class="tab-btn active"
-                        id="btn-tec"
-                        onclick="setTipo('tecnico')"
-                    >
-                        Técnico
-                    </button>
-
-                    <button
-                        class="tab-btn"
-                        id="btn-moto"
-                        onclick="setTipo('motoboy')"
-                    >
-                        Motoboy
-                    </button>
-
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button class="tab-btn active" id="btn-tec" onclick="setTipo('tecnico')">Técnico</button>
+                    <button class="tab-btn" id="btn-moto" onclick="setTipo('motoboy')">Motoboy</button>
                 </div>
 
-                <h3 id="form-title">
-                    Cadastrar Técnico
-                </h3>
-
-                <input
-                    type="text"
-                    id="nome"
-                    placeholder="Nome Completo"
-                >
-
-                <input
-                    type="text"
-                    id="id_ref"
-                    placeholder="Matrícula"
-                >
-
+                <h3 id="form-title" style="margin-top: 0;">Cadastrar Técnico</h3>
+                <input type="text" id="nome" placeholder="Nome Completo">
+                <input type="text" id="id_ref" placeholder="Matrícula">
                 <select id="horario">
                     <option value="" disabled selected>Horário de trabalho</option>
                     <option value="06:00 - 12:00">06:00 - 12:00</option>
                     <option value="07:00 - 13:00">07:00 - 13:00</option>
                     <option value="12:00 - 18:00">12:00 - 18:00</option>
                     <option value="13:00 - 19:00">13:00 - 19:00</option>
-                    <option value="Manhã">Manhã</option>
-                    <option value="Tarde">Tarde</option>
                 </select>
 
-                <div
-                    id="extra-field"
-                    style="display:none;"
-                >
-
-                    <input
-                        type="text"
-                        id="placa"
-                        placeholder="Placa do Veículo"
-                    >
-
-                </div>
-
-                <button
-                    style="
-                        width:100%;
-                        background:var(--accent);
-                        color:white;
-                        padding:12px;
-                        border:none;
-                        border-radius:4px;
-                        font-weight:bold;
-                        cursor:pointer;
-                    "
-                    onclick="salvarEquipe()"
-                >
-                    Adicionar
-                </button>
-
-                <hr style="
-                    border:0.5px solid #444;
-                    margin:20px 0;
-                ">
-
-                <input
-                    type="file"
-                    id="csv_equipe"
-                >
-
-                <button
-                    style="
-                        width:100%;
-                        background:#27ae60;
-                        color:white;
-                        padding:10px;
-                        border:none;
-                        border-radius:4px;
-                        cursor:pointer;
-                    "
-                    onclick="importarEquipe()"
-                >
-                    Importar Lista
-                </button>
-
+                <div id="extra-field" style="display:none;"><input type="text" id="placa" placeholder="Placa do Veículo"></div>
+                <button style="width:100%; background:var(--accent); color:white; padding:12px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; margin-top: 10px;" onclick="salvarEquipe()">Adicionar</button>
+                <hr style="border:0.5px solid #343b47; margin:25px 0;">
+                <input type="file" id="csv_equipe" style="padding: 0; background: transparent; border: none; margin-bottom: 10px;">
+                <button style="width:100%; background:#27ae60; color:white; padding:10px; border:none; border-radius:4px; cursor:pointer; font-weight: bold;" onclick="importarEquipe()">Importar Lista</button>
             </div>
 
-        </aside>
-
-        <main>
-
-            <div
-                class="card"
-                id="card-list"
-            >
-
-                <div style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:center;
-                ">
-
-                    <h2 id="list-title">
-                        Equipe
-                    </h2>
-
-                    <div style="
-                        display:flex;
-                        align-items:center;
-                        gap:10px;
-                    ">
-
-                        <input
-                            type="text"
-                            id="filtro_horario"
-                            placeholder="Filtrar horário..."
-                            onkeyup="listarEquipe()"
-                            style="width:180px;"
-                        >
-
-                        <button
-                            class="btn-config"
-                            onclick="
-                                document
-                                    .getElementById('card-list')
-                                    .classList
-                                    .toggle('show-manage')
-                            "
-                        >
-                            ⚙️
-                        </button>
-
+            <div class="card" id="card-list">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                    <h2 id="list-title" style="margin:0; font-size: 20px;">Técnicos Disponíveis</h2>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                       
+                        <div class="search-box-wrapper">
+                            <i data-lucide="search" style="width: 15px; color: #95a5a6;"></i>
+                            <input type="text" id="filtro_horario" placeholder="Filtrar turno..." onkeyup="listarEquipe()">
+                        </div>
+                       
+                        <button class="btn-config" onclick="document.getElementById('card-list').classList.toggle('show-manage')"><i data-lucide="settings" style="width: 18px; height: 18px; color: #95a5a6;"></i></button>
                     </div>
-
                 </div>
 
-                <button
-                    class="btn-mass-delete"
-                    onclick="excluirMassaEquipe()"
-                >
-                    🗑️ Excluir Selecionados
-                </button>
-
+                <button class="btn-mass-delete" onclick="excluirMassaEquipe()">🗑️ Excluir Selecionados</button>
                 <table>
-
                     <thead id="head-equipe"></thead>
-
                     <tbody id="lista-equipe"></tbody>
-
                 </table>
-
             </div>
-
-        </main>
-
+        </div>
     </div>
 
     <script>
-
         const API = "http://localhost:5000";
-
         let tipoAtual = 'tecnico';
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarArkus');
+            sidebar.classList.toggle('minimizado');
+           
+            if (sidebar.classList.contains('minimizado')) {
+                localStorage.setItem('arkus_sidebar', 'fechada');
+            } else {
+                localStorage.setItem('arkus_sidebar', 'aberta');
+            }
+        }
+
+        window.onload = () => {
+            lucide.createIcons();
+            setTipo('tecnico');
+
+            if (localStorage.getItem('arkus_sidebar') === 'fechada') {
+                document.getElementById('sidebarArkus').classList.add('minimizado');
+            }
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('arkus_sidebar', 'fechada');
+                });
+            });
+        };
+
         function setTipo(t) {
-
             tipoAtual = t;
-
-            document
-                .getElementById('btn-tec')
-                .classList
-                .toggle(
-                    'active',
-                    t === 'tecnico'
-                );
-
-            document
-                .getElementById('btn-moto')
-                .classList
-                .toggle(
-                    'active',
-                    t === 'motoboy'
-                );
-
-            document
-                .getElementById('id_ref')
-                .placeholder =
-                    t === 'tecnico'
-                    ? 'Matrícula'
-                    : 'CPF';
-
-            document
-                .getElementById('extra-field')
-                .style
-                .display =
-                    t === 'tecnico'
-                    ? 'none'
-                    : 'block';
-
-            document
-                .getElementById('form-title')
-                .innerText =
-                    t === 'tecnico'
-                    ? 'Cadastrar Técnico'
-                    : 'Cadastrar Motoboy';
-
-            document
-                .getElementById('list-title')
-                .innerText =
-                    t === 'tecnico'
-                    ? 'Técnicos Disponíveis'
-                    : 'Motoboys Disponíveis';
-
+            document.getElementById('btn-tec').classList.toggle('active', t === 'tecnico');
+            document.getElementById('btn-moto').classList.toggle('active', t === 'motoboy');
+            document.getElementById('id_ref').placeholder = t === 'tecnico' ? 'Matrícula' : 'CPF';
+            document.getElementById('extra-field').style.display = t === 'tecnico' ? 'none' : 'block';
+            document.getElementById('form-title').innerText = t === 'tecnico' ? 'Cadastrar Técnico' : 'Cadastrar Motoboy';
+            document.getElementById('list-title').innerText = t === 'tecnico' ? 'Técnicos Disponíveis' : 'Motoboys Disponíveis';
             listarEquipe();
         }
 
         async function listarEquipe() {
-
-            const h =
-                document.getElementById(
-                    'filtro_horario'
-                ).value;
-
-            const res = await fetch(
-                `${API}/listar_equipe/${tipoAtual}?horario=${h}`
-            );
-
+            const h = document.getElementById('filtro_horario').value;
+            const res = await fetch(`${API}/listar_equipe/${tipoAtual}?horario=${h}`);
             const dados = await res.json();
 
-            document.getElementById(
-                'head-equipe'
-            ).innerHTML = `
+            document.getElementById('head-equipe').innerHTML = `
                 <tr>
-
-                    <th class="col-check">
-                        <input
-                            type="checkbox"
-                            onclick="marcarTodos(this)"
-                        >
-                    </th>
-
-                    <th>
-                        ${
-                            tipoAtual === 'tecnico'
-                            ? 'Matrícula'
-                            : 'CPF'
-                        }
-                    </th>
-
+                    <th class="col-check"><input type="checkbox" onclick="marcarTodos(this)"></th>
+                    <th>${tipoAtual === 'tecnico' ? 'Matrícula' : 'CPF'}</th>
                     <th>Nome</th>
-
-                    ${
-                        tipoAtual === 'motoboy'
-                        ? '<th>Placa</th>'
-                        : ''
-                    }
-
+                    ${tipoAtual === 'motoboy' ? '<th>Placa</th>' : ''}
                     <th>Turno</th>
+                </tr>`;
 
-                </tr>
-            `;
-
-            document.getElementById(
-                'lista-equipe'
-            ).innerHTML = dados.map(m => `
+            document.getElementById('lista-equipe').innerHTML = dados.map(m => `
                 <tr>
-
-                    <td class="col-check">
-
-                        <input
-                            type="checkbox"
-                            class="check-item"
-                            value="${
-                                m.matricula || m.cpf
-                            }"
-                        >
-
-                    </td>
-
-                    <td>
-                        ${m.matricula || m.cpf}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${m.nome_completo}
-                        </strong>
-                    </td>
-
-                    ${
-                        tipoAtual === 'motoboy'
-                        ? `
-                            <td>
-                                ${m.placa_veiculo}
-                            </td>
-                        `
-                        : ''
-                    }
-
-                    <td>
-                        ${m.horario_trabalho}
-                    </td>
-
-                </tr>
-            `).join('');
+                    <td class="col-check"><input type="checkbox" class="check-item" value="${m.matricula || m.cpf}"></td>
+                    <td>${m.matricula || m.cpf}</td>
+                    <td><strong>${m.nome_completo}</strong></td>
+                    ${tipoAtual === 'motoboy' ? `<td>${m.placa_veiculo}</td>` : ''}
+                    <td>${m.horario_trabalho}</td>
+                </tr>`).join('');
+               
+            lucide.createIcons();
         }
 
         async function salvarEquipe() {
-
             const d = {
-
-                nome:
-                    document.getElementById(
-                        'nome'
-                    ).value,
-
-                id_ref:
-                    document.getElementById(
-                        'id_ref'
-                    ).value,
-
-                horario:
-                    document.getElementById(
-                        'horario'
-                    ).value,
-
-                placa:
-                    document.getElementById(
-                        'placa'
-                    ).value
+                nome: document.getElementById('nome').value,
+                id_ref: document.getElementById('id_ref').value,
+                horario: document.getElementById('horario').value,
+                placa: document.getElementById('placa').value
             };
-
-            await fetch(
-                `${API}/cadastrar_equipe/${tipoAtual}`,
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-
-                    body: JSON.stringify(d)
-                }
-            );
-
-            listarEquipe();
-
-            document.getElementById(
-                'nome'
-            ).value = '';
-
-            document.getElementById(
-                'id_ref'
-            ).value = '';
-
-            document.getElementById(
-                'placa'
-            ).value = '';
-
-            document.getElementById(
-                'horario'
-            ).selectedIndex = 0;
+            await fetch(`${API}/cadastrar_equipe/${tipoAtual}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d)
+            });
+            setTipo(tipoAtual);
+            document.getElementById('nome').value = ''; document.getElementById('id_ref').value = ''; document.getElementById('placa').value = ''; document.getElementById('horario').selectedIndex = 0;
         }
 
-        function marcarTodos(s) {
-
-            document
-                .querySelectorAll('.check-item')
-                .forEach(c => c.checked = s.checked);
-        }
+        function marcarTodos(s) { document.querySelectorAll('.check-item').forEach(c => c.checked = s.checked); }
 
         async function excluirMassaEquipe() {
-
-            const ids = Array.from(
-                document.querySelectorAll(
-                    '.check-item:checked'
-                )
-            ).map(cb => cb.value);
-
-            if (
-                ids.length > 0
-                && confirm("Excluir?")
-            ) {
-
-                await fetch(
-                    `${API}/excluir_massa_equipe/${tipoAtual}`,
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-
-                        body: JSON.stringify({ ids })
-                    }
-                );
-
+            const ids = Array.from(document.querySelectorAll('.check-item:checked')).map(cb => cb.value);
+            if (ids.length > 0 && confirm("Excluir selecionados?")) {
+                await fetch(`${API}/excluir_massa_equipe/${tipoAtual}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids })
+                });
                 listarEquipe();
             }
         }
 
         async function importarEquipe() {
-
             const fd = new FormData();
-
-            fd.append(
-                'file',
-                document.getElementById(
-                    'csv_equipe'
-                ).files[0]
-            );
-
-            await fetch(
-                `${API}/importar/${tipoAtual}`,
-                {
-                    method: 'POST',
-                    body: fd
-                }
-            );
-
+            fd.append('file', document.getElementById('csv_equipe').files[0]);
+            await fetch(`${API}/importar/${tipoAtual}`, { method: 'POST', body: fd });
             listarEquipe();
-
-            document.getElementById(
-                'csv_equipe'
-            ).value = '';
+            document.getElementById('csv_equipe').value = '';
         }
 
-        window.onload = () => {
-
-            lucide.createIcons();
-
-            setTipo('tecnico');
-        };
-
+        function fazerLogout() {
+            if (confirm("Deseja realmente sair do Arkus?")) {
+                localStorage.removeItem('arkus_usuario');
+                window.location.href = "login.html";
+            }
+        }
     </script>
-
 </body>
 </html>
