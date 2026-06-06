@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>ARKUS - Mapa de Monitoramento</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --bg: #1a1d23;
+            --card: #252a33;
+            --accent: #3498db;
+            --accent-pink: #a855f7;
+            --accent-green: #20c997;
+            --accent-danger: #e74c3c;
+            --text: #ecf0f1;
+            --neon-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; min-height: 100vh; }
+
+        aside { width: 260px; background: var(--card); border-right: 2px solid #343b47; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3); transition: width 0.3s ease; z-index: 1000; overflow-x: hidden; }
+        aside.minimizado { width: 80px; padding: 20px 10px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; padding: 0 5px; }
+        aside.minimizado .sidebar-header { justify-content: center; }
+        .titulo-sistema { font-size: 20px; font-weight: bold; color: var(--text); letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.2s ease, width 0.2s ease; }
+        .titulo-sistema span { color: var(--accent); text-shadow: var(--neon-shadow); }
+        aside.minimizado .titulo-sistema { opacity: 0; pointer-events: none; width: 0; margin: 0; display: none; }
+        .btn-toggle-sidebar { background: transparent; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; min-width: 40px; transition: all 0.2s; }
+        .btn-toggle-sidebar:hover { background: #343b47; color: var(--accent); }
+        nav { display: flex; flex-direction: column; gap: 15px; }
+        nav a { color: var(--text); text-decoration: none; font-weight: bold; opacity: 0.6; display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 6px; transition: all 0.3s ease; white-space: nowrap; }
+        nav a:hover { opacity: 0.9; background: rgba(52, 152, 219, 0.05); color: var(--accent); }
+        nav a.active { opacity: 1; color: var(--text); background: var(--accent); box-shadow: var(--neon-shadow); }
+        nav a span { transition: opacity 0.2s ease; }
+        aside.minimizado nav a { justify-content: center; padding: 12px 0; }
+        aside.minimizado nav a span { opacity: 0; width: 0; visibility: hidden; }
+
+        .conteudo-principal { flex: 1; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; height: 100vh; overflow: hidden; }
+        .mapa-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .controles-painel { display: flex; gap: 15px; align-items: center; }
+
+        select { padding: 10px; background: #343b47; color: white; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; font-size: 14px; font-weight: bold; }
+        select:focus { outline: none; border-color: var(--accent); box-shadow: var(--neon-shadow); }
+
+        .map-container { position: relative; flex: 1; width: 100%; border-radius: 8px; border: 2px solid #343b47; box-shadow: 0 4px 15px rgba(0,0,0,0.2); overflow: hidden; background: #1a1d23; }
+        
+        #mapa { width: 100%; height: 100%; cursor: default; }
+        .google-dark-theme { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+
+        .pin-modern {
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+            transition: transform 0.2s ease, z-index 0s;
+            cursor: pointer;
+            color: #ffffff;
+        }
+        .pin-modern:hover {
+            transform: scale(1.15);
+            z-index: 1000 !important;
+        }
+
+        .pin-coleta { background: var(--accent-pink); }
+        .pin-retirada { background: var(--accent-green); }
+        
+        .pin-pendente {
+            background: var(--accent-danger);
+            animation: radar-pulse 1.5s infinite;
+        }
+
+        @keyframes radar-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7), 0 4px 8px rgba(0,0,0,0.8); }
+            70% { box-shadow: 0 0 0 12px rgba(231, 76, 60, 0), 0 4px 8px rgba(0,0,0,0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0), 0 4px 8px rgba(0,0,0,0.8); }
+        }
+
+        .leaflet-container { background: #1a1d23 !important; }
+        .leaflet-bar { border: 1px solid rgba(100, 180, 255, 0.2) !important; border-radius: 12px !important; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .leaflet-bar a { background-color: rgba(10, 18, 35, 0.65) !important; color: var(--text) !important; border-bottom: 1px solid rgba(100, 180, 255, 0.1) !important; }
+        .leaflet-bar a:hover { background-color: rgba(52, 152, 219, 0.2) !important; color: var(--accent) !important; }
+        .leaflet-bar a:last-child { border-bottom: none !important; }
+
+        .leaflet-tooltip {
+            background: rgba(10, 18, 35, 0.85) !important;
+            color: var(--text) !important;
+            border: 1px solid rgba(100, 180, 255, 0.2) !important;
+            backdrop-filter: blur(8px);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+        }
+
+        .map-overlay-btn { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(10, 18, 35, 0.65); color: var(--text); border: 1px solid rgba(100, 180, 255, 0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 8px; border-radius: 8px; cursor: pointer; box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05); transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .map-overlay-btn:hover { background: rgba(52, 152, 219, 0.2); color: var(--accent); }
+
+        .map-legend { position: absolute; bottom: 20px; left: 20px; z-index: 1000; background: rgba(10, 18, 35, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 15px; border-radius: 12px; border: 1px solid rgba(100, 180, 255, 0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05); }
+        .map-legend h4 { margin: 0 0 12px 0; font-size: 11px; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 10px; color: #fff; }
+        .legend-item:last-child { margin-bottom: 0; }
+        
+        .pin-demo { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+        .pin-demo.coleta { background: var(--accent-pink); } 
+        .pin-demo.retirada { background: var(--accent-green); } 
+        .pin-demo.pendente { background: var(--accent-danger); }
+
+        .map-summary-card { position: absolute; top: 15px; right: 70px; z-index: 1000; width: 340px; max-height: calc(100% - 30px); display: none; }
+        
+        .card-profissional {
+            background: rgba(10, 18, 35, 0.70);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 180, 255, 0.2);
+            border-top: 4px solid var(--accent-pink); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.05);
+            max-height: 100%;
+            overflow-y: auto;
+        }
+        .card-profissional.moto {
+            border-top-color: var(--accent-green); 
+            border-color: rgba(32, 201, 151, 0.2);
+            border-top: 4px solid var(--accent-green);
+        }
+        
+        .card-profissional::-webkit-scrollbar { width: 6px; }
+        .card-profissional::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        .card-profissional::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        .nome-profissional { font-size: 16px; font-weight: bold; margin: 0; display: block; color: #ffffff; }
+        
+        .item-atendimento { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+        .item-atendimento:last-child { border-bottom: none; }
+        .atendimento-header { display: flex; justify-content: space-between; align-items: center; }
+        .num-ordem { color: var(--accent-pink); font-weight: bold; margin-right: 5px; } 
+        .card-profissional.moto .num-ordem { color: var(--accent-green); } 
+        .horario { font-size: 11px; background: rgba(0,0,0,0.4); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebarArkus">
+        <div class="sidebar-header">
+            <div class="titulo-sistema"><span>ARKUS</span> | Menu</div>
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+        </div>
+        <nav>
+    <a href="index.html"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
+    <a href="tecnicos.html"><i data-lucide="users"></i><span>Gestão de Equipe</span></a>
+    <a href="rotas.html"><i data-lucide="route"></i><span>Rotas</span></a>
+    <a href="mapa_rotas.html" class="active"><i data-lucide="map"></i><span>Mapa de Rotas</span></a>
+    <a href="dashboard.html"><i data-lucide="bar-chart-3"></i><span>Dashboard Gerencial</span></a>
+    
+    <hr style="border: none; border-top: 1.5px solid #343b47; margin: 10px 0;">
+    <a href="#" onclick="fazerLogout()" style="color: #e74c3c; opacity: 0.85;">
+        <i data-lucide="log-out" style="color: #e74c3c;"></i><span>Sair do Sistema</span>
+    </a>
+</nav>
+    </aside>
+
+    <div class="conteudo-principal">
+        <div class="mapa-header">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <h2 style="margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="radio" style="color: var(--accent);"></i>
+                    Monitoramento Geográfico
+                </h2>
+                <span style="font-size: 12px; color: #95a5a6; display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; background-color: #2ecc71; border-radius: 50%; box-shadow: 0 0 8px #2ecc71;"></span>
+                    Sincronizado com o Servidor
+                </span>
+            </div>
+            
+            <div class="controles-painel">
+                <div style="display: flex; align-items: center; background: #252a33; border: 1px solid #343b47; border-radius: 6px; padding: 4px; user-select: none; transition: border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#343b47'">
+                    <button onclick="mudarDia(-1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 10px; border-radius: 4px; display: flex; align-items: center; transition: all 0.2s;"><i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i></button>
+                    
+                    <div onclick="document.getElementById('dataMapa').showPicker()" style="display: flex; align-items: center; gap: 8px; padding: 0 12px; cursor: pointer; color: white; font-weight: bold; font-family: 'Segoe UI', sans-serif; font-size: 14px;">
+                        <i data-lucide="calendar" style="width: 16px; color: var(--accent);"></i>
+                        <span id="txtDataExibicao">--/--/----</span>
+                    </div>
+                    
+                    <input type="date" id="dataMapa" onchange="atualizarTextoData(); carregarDadosMapa();" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+                    
+                    <button onclick="mudarDia(1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 10px; border-radius: 4px; display: flex; align-items: center; transition: all 0.2s;"><i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i></button>
+                </div>
+
+                <select id="selectProfissional" onchange="isolarPontos()">
+                    <option value="">Visualizar Rede Global</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="map-container" id="map-container">
+            <div id="mapa"></div>
+            
+            <button id="btn-fullscreen" class="map-overlay-btn" onclick="toggleFullScreen()" title="Expandir Mapa">
+                <i data-lucide="maximize"></i>
+            </button>
+
+            <div class="map-legend">
+                <h4>Legenda Operacional</h4>
+                <div class="legend-item">
+                    <span class="pin-demo coleta"></span> Coleta (Alocada)
+                </div>
+                <div class="legend-item">
+                    <span class="pin-demo retirada"></span> Atendimento (Alocada)
+                </div>
+                <div class="legend-item">
+                    <span class="pin-demo pendente"></span> Pendência (Aguardando Rota)
+                </div>
+            </div>
+
+            <div class="map-summary-card" id="summary-card"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = "http://localhost:5000";
+        let map, camadaMarcadores = L.layerGroup();
+        let todasAsParadas = [];
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarArkus');
+            sidebar.classList.toggle('minimizado');
+            
+            if (sidebar.classList.contains('minimizado')) {
+                localStorage.setItem('arkus_sidebar', 'fechada');
+            } else {
+                localStorage.setItem('arkus_sidebar', 'aberta');
+            }
+            setTimeout(() => { if(map) map.invalidateSize(); }, 300);
+        }
+
+        window.onload = () => {
+            lucide.createIcons();
+            
+            if (localStorage.getItem('arkus_sidebar') === 'fechada') {
+                document.getElementById('sidebarArkus').classList.add('minimizado');
+            }
+
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('arkus_sidebar', 'fechada');
+                });
+            });
+
+            document.getElementById('dataMapa').valueAsDate = new Date();
+            atualizarTextoData();
+            inicializarMapa();
+            carregarDadosMapa();
+        };
+
+        function atualizarTextoData() {
+            const val = document.getElementById('dataMapa').value;
+            if (!val) return;
+            const [ano, mes, dia] = val.split('-');
+            document.getElementById('txtDataExibicao').innerText = `${dia}/${mes}/${ano}`;
+        }
+
+        function mudarDia(direcao) {
+            const input = document.getElementById('dataMapa');
+            if (!input.value) return;
+            
+            let data = new Date(input.value + 'T00:00:00');
+            data.setDate(data.getDate() + direcao);
+            
+            input.value = data.toISOString().split('T')[0];
+            atualizarTextoData();
+            carregarDadosMapa();
+        }
+
+        function toggleFullScreen() {
+            const mapContainer = document.getElementById('map-container');
+            if (!document.fullscreenElement) {
+                mapContainer.requestFullscreen().catch(err => {
+                    alert(`Erro ao tentar expandir: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const btnIcon = document.querySelector('#btn-fullscreen i');
+            if (document.fullscreenElement) {
+                btnIcon.setAttribute('data-lucide', 'minimize');
+            } else {
+                btnIcon.setAttribute('data-lucide', 'maximize');
+            }
+            lucide.createIcons();
+        });
+
+        function inicializarMapa() {
+            map = L.map('mapa', { zoomControl: false }).setView([-23.5505, -46.6333], 12);
+            
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                attribution: '© Google',
+                className: 'google-dark-theme'
+            }).addTo(map);
+            
+            camadaMarcadores.addTo(map);
+
+            setTimeout(() => { map.invalidateSize(); }, 500);
+        }
+
+        async function carregarDadosMapa() {
+            const dataSel = document.getElementById('dataMapa').value;
+            if (!dataSel) return;
+
+            camadaMarcadores.clearLayers();
+            todasAsParadas = [];
+            document.getElementById('summary-card').style.display = 'none';
+            
+            try {
+                const res = await fetch(`${API}/api/rotas_mapa?data=${dataSel}`);
+                const dados = await res.json();
+                todasAsParadas = dados.paradas;
+
+                const selectProf = document.getElementById('selectProfissional');
+                selectProf.innerHTML = '<option value="">Visualizar Rede Global</option>';
+                dados.profissionais.forEach(p => {
+                    selectProf.innerHTML += `<option value="${p.id}">${p.nome} (${p.tipo})</option>`;
+                });
+
+                renderizarPins(todasAsParadas, false);
+
+            } catch (error) {
+                console.error("Erro ao carregar dados", error);
+            }
+        }
+
+        function renderizarPins(lista, mostrarLinhas = false) {
+            camadaMarcadores.clearLayers();
+            const rotasPorProfissional = {};
+            const coordenadasVistas = {};
+
+            lista.forEach(p => {
+                const grupoId = p.prof_id || 'pendentes';
+                if (!rotasPorProfissional[grupoId]) {
+                    rotasPorProfissional[grupoId] = { tipo: p.tipo, paradas: [], isPendente: !p.prof_id };
+                }
+                rotasPorProfissional[grupoId].paradas.push(p);
+            });
+
+            Object.keys(rotasPorProfissional).forEach(profId => {
+                const rota = rotasPorProfissional[profId];
+                rota.paradas.sort((a, b) => (a.ordem || 999) - (b.ordem || 999));
+
+                const coordenadasLinha = [];
+                const corLinha = rota.tipo === 'Coleta' ? '#a855f7' : '#20c997';
+
+                rota.paradas.forEach(p => {
+                    if (p.lat && p.lng && p.lat !== "null" && p.lng !== "null" && !isNaN(parseFloat(p.lat)) && !isNaN(parseFloat(p.lng))) {
+                        let lat = parseFloat(p.lat);
+                        let lng = parseFloat(p.lng);
+                        
+                        let chaveCoord = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+                        if (coordenadasVistas[chaveCoord]) {
+                            lat += (Math.random() - 0.5) * 0.0006;
+                            lng += (Math.random() - 0.5) * 0.0006;
+                        } else {
+                            coordinatesVistas = true;
+                            coordenadasVistas[chaveCoord] = true;
+                        }
+
+                        if (!rota.isPendente) {
+                            coordenadasLinha.push([lat, lng]);
+                        }
+
+                        let classeCorPin = (p.tipo === 'Coleta') ? 'pin-coleta' : 'pin-retirada';
+                        let textoPin = (p.ordem && p.ordem !== "null" && p.ordem !== "None") ? p.ordem : '!';
+
+                        if (rota.isPendente) {
+                            classeCorPin = 'pin-pendente';
+                            textoPin = '!';
+                        }
+                        
+                        const icon = L.divIcon({
+                            className: `pin-modern ${classeCorPin}`,
+                            html: `<span style="font-size:12px; font-weight:bold; font-family: sans-serif; color: #ffffff;">${textoPin}</span>`,
+                            iconSize: [24, 24]
+                        });
+
+                        const tituloPopup = rota.isPendente ? `<b>Pendente - ${p.paciente}</b>` : `<b>${textoPin}° - ${p.paciente}</b>`;
+
+                        const marker = L.marker([lat, lng], { icon: icon });
+
+                        marker.bindTooltip(`${tituloPopup}<br>${p.tipo} - ${p.horario}`, {
+                            direction: 'top',
+                            offset: [0, -10],
+                            opacity: 1
+                        });
+
+                        marker.on('click', function() {
+                            if(rota.isPendente) return;
+                            
+                            const select = document.getElementById('selectProfissional');
+                            if(select.value == p.prof_id) {
+                                select.value = "";
+                            } else {
+                                select.value = p.prof_id;
+                            }
+                            isolarPontos();
+                        });
+
+                        marker.addTo(camadaMarcadores);
+                    }
+                });
+
+                if (mostrarLinhas && !rota.isPendente && coordenadasLinha.length > 1) {
+                    L.polyline(coordenadasLinha, {
+                        color: corLinha,
+                        weight: 3,
+                        opacity: 0.8,
+                        dashArray: '8, 8'
+                    }).addTo(camadaMarcadores);
+                }
+            });
+            
+            if(lista.length > 0) {
+                const group = new L.featureGroup(camadaMarcadores.getLayers());
+                if(group.getLayers().length > 0) {
+                    map.fitBounds(group.getBounds(), { padding: [60, 60] });
+                }
+            }
+        }
+
+        function isolarPontos() {
+            const id = document.getElementById('selectProfissional').value;
+            const summaryCard = document.getElementById('summary-card');
+            
+            if(!id) {
+                renderizarPins(todasAsParadas, false);
+                summaryCard.style.display = 'none';
+                return;
+            }
+            
+            const filtrados = todasAsParadas.filter(p => p.prof_id == id);
+            renderizarPins(filtrados, true);
+            
+            const select = document.getElementById('selectProfissional');
+            const nomeCompleto = select.options[select.selectedIndex].text.split(' (')[0];
+            
+            const isMoto = filtrados.length > 0 && (filtrados[0].tipo === 'Atendimento' || filtrados[0].tipo === 'Retirada');
+            
+            let paradasSemLat = 0;
+            filtrados.forEach(p => {
+                if(!p.lat || !p.lng || p.lat === "null" || p.lng === "null" || isNaN(parseFloat(p.lat))) {
+                    paradasSemLat++;
+                }
+            });
+            
+            let avisoGeo = paradasSemLat > 0 ?
+                `<div style="background: rgba(231, 76, 60, 0.15); border: 1px solid rgba(231, 76, 60, 0.4); color: #e74c3c; padding: 10px; border-radius: 8px; font-size: 11px; margin-bottom: 15px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="alert-triangle" style="width:16px; flex-shrink: 0;"></i>
+                    Aviso: ${paradasSemLat} endereço(s) sem coordenadas.
+                </div>` : '';
+            
+            const iconeProf = isMoto ?
+                `<i data-lucide="package" style="color: var(--accent-green); width:18px; height:18px;"></i>` :
+                `<i data-lucide="test-tube" style="color: var(--accent-pink); width:18px; height:18px;"></i>`;
+            
+            let htmlCard = `
+                <div class="card-profissional ${isMoto ? 'moto' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            ${iconeProf}
+                            <span class="nome-profissional">${nomeCompleto}</span>
+                        </div>
+                        <span style="font-size:11px; background:rgba(0,0,0,0.5); padding:4px 8px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); color:#fff;">${filtrados.length} Paradas</span>
+                    </div>
+                    ${avisoGeo}
+            `;
+            
+            filtrados.sort((a,b) => (a.ordem || 999) - (b.ordem || 999)).forEach((p, index) => {
+                let corErro = (!p.lat || !p.lng || p.lat === "null" || isNaN(parseFloat(p.lat))) ? 'color: #e74c3c; font-weight: bold;' : 'color: #e2e8f0;';
+                let ordemTexto = (p.ordem && p.ordem !== "null" && p.ordem !== "None") ? `${p.ordem}°` : `!`;
+                
+                htmlCard += `
+                    <div class="item-atendimento">
+                        <div class="atendimento-header">
+                            <span><span class="num-ordem">${ordemTexto}</span><strong>${p.paciente}</strong></span>
+                            <span class="horario">🕒 ${p.horario}</span>
+                        </div>
+                        <small style="${corErro}">📍 ${p.endereco}</small>
+                    </div>
+                `;
+            });
+            htmlCard += `</div>`;
+            
+            summaryCard.innerHTML = htmlCard;
+            summaryCard.style.display = 'block';
+            lucide.createIcons();
+        }
+
+        function fazerLogout() {
+            if (confirm("Deseja realmente sair do Arkus?")) {
+                localStorage.removeItem('arkus_usuario');
+                window.location.href = "login.html"; 
+            }
+        }
+
+    </script>
+</body>
+</html>
