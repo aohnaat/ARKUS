@@ -4,7 +4,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <meta charset="UTF-8">
     <title>ARKUS - Rotas</title>
-
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
         :root {
             --bg: #1a1d23;
@@ -14,595 +14,324 @@
             --tec: #9b59b6;
             --moto: #2ecc71;
         }
-
         body {
             font-family: 'Segoe UI', sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 20px;
-        }
-
-        nav {
-            background: #252a33;
-            padding: 15px 40px;
-            margin-bottom: 30px;
+            padding: 0;
             display: flex;
-            gap: 30px;
-            border-bottom: 2px solid #343b47;
+            min-height: 100vh;
         }
 
-        nav a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: bold;
-            opacity: 0.6;
+        aside { width: 260px; background: var(--card); border-right: 2px solid #343b47; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3); transition: width 0.3s ease; z-index: 1000; overflow-x: hidden; }
+        aside.minimizado { width: 80px; padding: 20px 10px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; padding: 0 5px; }
+        aside.minimizado .sidebar-header { justify-content: center; }
+        .titulo-sistema { font-size: 20px; font-weight: bold; color: var(--text); letter-spacing: 0.5px; white-space: nowrap; transition: opacity 0.2s ease, width 0.2s ease; }
+        .titulo-sistema span { color: var(--accent); }
+        aside.minimizado .titulo-sistema { opacity: 0; pointer-events: none; width: 0; margin: 0; display: none; }
+        .btn-toggle-sidebar { background: transparent; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 6px; min-width: 40px; transition: all 0.2s; }
+        .btn-toggle-sidebar:hover { background: #343b47; color: var(--accent); }
+        nav { display: flex; flex-direction: column; gap: 15px; }
+        nav a { color: var(--text); text-decoration: none; font-weight: bold; opacity: 0.6; display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 6px; transition: all 0.3s ease; white-space: nowrap; }
+        nav a:hover { opacity: 0.9; background: rgba(52, 152, 219, 0.05); color: var(--accent); }
+        nav a.active { opacity: 1; color: var(--text); background: var(--accent); }
+        nav a span { transition: opacity 0.2s ease; }
+        aside.minimizado nav a { justify-content: center; padding: 12px 0; }
+        aside.minimizado nav a span { opacity: 0; width: 0; visibility: hidden; }
+
+        .conteudo-principal { flex: 1; padding: 30px; box-sizing: border-box; }
+        
+        .panel { 
+            background: var(--card); 
+            padding: 16px 24px; 
+            border-radius: 8px; 
+            border-top: 4px solid var(--accent); 
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-start;
+            gap: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            flex-wrap: nowrap;
+        }
+
+        .filtro-wrapper {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
+        }
+        
+        .botoes-container { display: flex; gap: 12px; flex-shrink: 0; }
+        .btn-action { 
+            display: flex; align-items: center; gap: 8px; 
+            padding: 10px 18px; 
+            background: transparent; 
+            color: var(--accent); 
+            border: 1.5px solid var(--accent); 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 13.5px; 
+            transition: all 0.2s ease; 
+        }
+        .btn-action:hover { 
+            background: rgba(52, 152, 219, 0.08); 
+            transform: translateY(-1px); 
         }
 
-        nav i {
-            width: 20px;
-            height: 20px;
-        }
+        .btn-danger { color: #e74c3c; border-color: #e74c3c; }
+        .btn-danger:hover { background: rgba(231, 76, 60, 0.08); }
 
-        nav a.active {
-            opacity: 1;
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .titulo-sistema {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 15px;
-        }
-
-        .panel {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 8px;
-            border-top: 4px solid var(--accent);
-            margin-bottom: 20px;
+        .badge-wrapper {
+            flex: 1;
             display: flex;
-            gap: 15px;
+            justify-content: flex-end;
             align-items: center;
+            min-width: 0;
         }
 
-        input[type="date"] {
-            padding: 10px;
-            background: #343b47;
-            color: white;
-            border: 1px solid #444;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .board {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .coluna {
-            background: #1e2229;
-            padding: 15px;
-            border-radius: 8px;
-            min-height: 400px;
-        }
-
-        .coluna h3 {
-            margin-top: 0;
-            text-align: center;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #343b47;
-        }
-
-        .card-profissional {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-top: 4px solid var(--tec);
-        }
-
-        .card-profissional.moto {
-            border-top-color: var(--moto);
-        }
-
-        .nome-profissional {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-            color: var(--accent);
-        }
-
-        .item-atendimento {
-            padding: 10px;
-            border-bottom: 1px solid #343b47;
-            font-size: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .item-atendimento:last-child {
-            border-bottom: none;
-        }
-
-        .atendimento-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .num-ordem {
-            color: var(--accent);
-            font-weight: bold;
-            margin-right: 5px;
-        }
-
-        .horario {
-            font-size: 12px;
-            background: #343b47;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
+        .board { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .coluna { background: #1e2229; padding: 15px; border-radius: 8px; min-height: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .coluna h3 { margin-top: 0; text-align: center; padding-bottom: 10px; border-bottom: 2px solid #343b47; }
+        .card-profissional { background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-top: 4px solid var(--tec); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .card-profissional.moto { border-top-color: var(--moto); }
+        .nome-profissional { font-size: 16px; font-weight: bold; margin-bottom: 10px; display: block; color: var(--accent); }
+        .item-atendimento { padding: 10px; border-bottom: 1px solid #343b47; font-size: 14px; display: flex; flex-direction: column; gap: 3px; }
+        .item-atendimento:last-child { border-bottom: none; }
+        .atendimento-header { display: flex; justify-content: space-between; align-items: center; }
+        .num-ordem { color: var(--accent); font-weight: bold; margin-right: 5px; }
+        .horario { font-size: 12px; background: #343b47; padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
-
 <body>
 
-    <div class="titulo-sistema">
-        ARKUS | Sistema de Roteirização Domiciliar
-    </div>
+    <aside id="sidebarArkus">
+        <div class="sidebar-header">
+            <div class="titulo-sistema"><span>ARKUS</span> | Menu</div>
+            <button class="btn-toggle-sidebar" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+        </div>
+        <nav>
+    <a href="index.html"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
+    <a href="tecnicos.html"><i data-lucide="users"></i><span>Gestão de Equipe</span></a>
+    <a href="rotas.html" class="active"><i data-lucide="route"></i><span>Rotas</span></a>
+    <a href="mapa_rotas.html"><i data-lucide="map"></i><span>Mapa de Rotas</span></a>
+    <a href="dashboard.html"><i data-lucide="bar-chart-3"></i><span>Dashboard Gerencial</span></a>
+    
+    <hr style="border: none; border-top: 1.5px solid #343b47; margin: 10px 0;">
+    <a href="#" onclick="fazerLogout()" style="color: #e74c3c; opacity: 0.85;">
+        <i data-lucide="log-out" style="color: #e74c3c;"></i><span>Sair do Sistema</span>
+    </a>
+</nav>
+    </aside>
 
-    <nav>
-        <a href="index.html">
-            <i data-lucide="calendar"></i>
-            Agendamentos
-        </a>
-
-        <a href="tecnicos.html">
-            <i data-lucide="users"></i>
-            Gestão de Equipe
-        </a>
-
-        <a href="rotas.html" class="active">
-            <i data-lucide="route"></i>
-            Rotas
-        </a>
-    </nav>
-
-    <div class="panel">
-
-        <label>Selecione a Data:</label>
-
-        <input
-            type="date"
-            id="data_rota"
-            onchange="carregarRotas()"
-        >
-
-        <button onclick="gerarRotas()">
-            Gerar Rotas
-        </button>
-
-        <span
-            id="badge-pendentes"
-            style="
-                margin-left:auto;
-                font-weight:bold;
-                font-size:16px;
-                display:none;
-            "
-        ></span>
-
-    </div>
-
-    <div class="board">
-
-        <div class="coluna" id="col-tec">
-
-            <h3 style="
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                gap:8px;
-            ">
-                <i
-                    data-lucide="test-tube"
-                    style="color: var(--tec);"
-                ></i>
-
-                Técnicos (Coletas)
-            </h3>
-
-            <div id="lista-tec"></div>
-
+    <div class="conteudo-principal">
+        <div class="panel">
+            <div class="filtro-wrapper">
+                <label style="font-weight: bold; font-size: 13.5px; color: #95a5a6; white-space: nowrap;">Data:</label>
+                
+                <div style="display: flex; align-items: center; background: #1a1d23; border: 1px solid #343b47; border-radius: 6px; padding: 3px; transition: border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='#343b47'">
+                    <button onclick="mudarDia(-1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 8px; border-radius: 4px; display: flex; align-items: center;"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button>
+                    
+                    <div onclick="document.getElementById('dataFiltro').showPicker()" style="display: flex; align-items: center; gap: 8px; padding: 0 10px; cursor: pointer; color: white; font-weight: bold; font-family: 'Segoe UI', sans-serif; font-size: 13.5px; white-space: nowrap;">
+                        <i data-lucide="calendar" style="width: 15px; color: var(--accent);"></i>
+                        <span id="txtDataExibicao">--/--/----</span>
+                    </div>
+                    
+                    <input type="date" id="dataFiltro" onchange="atualizarTextoData(); carregarRotas();" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+                    
+                    <button onclick="mudarDia(1)" style="background: transparent; border: none; color: var(--accent); cursor: pointer; padding: 6px 8px; border-radius: 4px; display: flex; align-items: center;"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button>
+                </div>
+            </div>
+            
+            <div class="botoes-container">
+                <button class="btn-action" onclick="gerarPendentesGlobais()"><i data-lucide="layers" style="width:15px;"></i> Gerar Rotas Pendentes</button>
+                <button class="btn-action btn-danger" onclick="gerarTodasAsRotas()"><i data-lucide="refresh-cw" style="width:15px;"></i> Recalcular Tudo</button>
+            </div>
+            
+            <div class="badge-wrapper" id="badge-container">
+                <span id="badge-pendentes" style="display:none; width: 100%; max-width: 520px;"></span>
+            </div>
         </div>
 
-        <div class="coluna" id="col-moto">
-
-            <h3 style="
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                gap:8px;
-            ">
-                <i
-                    data-lucide="package"
-                    style="color: var(--moto);"
-                ></i>
-
-                Motoboys (Retiradas)
-            </h3>
-
-            <div id="lista-moto"></div>
-
+        <div class="board">
+            <div class="coluna" id="col-tec">
+                <h3 style="display:flex; align-items:center; justify-content:center; gap:8px;"><i data-lucide="test-tube" style="color: var(--tec);"></i> Técnicos (Coletas)</h3>
+                <div id="lista-tec"></div>
+            </div>
+            <div class="coluna" id="col-moto">
+                <h3 style="display:flex; align-items:center; justify-content:center; gap:8px;"><i data-lucide="package" style="color: var(--moto);"></i> Motoboys (Retiradas)</h3>
+                <div id="lista-moto"></div>
+            </div>
         </div>
-
     </div>
 
     <script>
-
         const API = "http://localhost:5000";
 
+        function toggleSidebar() { 
+            const sidebar = document.getElementById('sidebarArkus');
+            sidebar.classList.toggle('minimizado'); 
+            
+            if (sidebar.classList.contains('minimizado')) {
+                localStorage.setItem('arkus_sidebar', 'fechada');
+            } else {
+                localStorage.setItem('arkus_sidebar', 'aberta');
+            }
+        }
+
         window.onload = () => {
-
             lucide.createIcons();
+            document.getElementById('dataFiltro').valueAsDate = new Date();
+            atualizarTextoData();
+            
+            if (localStorage.getItem('arkus_sidebar') === 'fechada') {
+                document.getElementById('sidebarArkus').classList.add('minimizado');
+            }
 
-            document.getElementById('data_rota').valueAsDate =
-                new Date();
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('arkus_sidebar', 'fechada');
+                });
+            });
 
             carregarRotas();
         };
 
-        async function gerarRotas() {
+        function atualizarTextoData() {
+            const val = document.getElementById('dataFiltro').value;
+            if (!val) return;
+            const [ano, mes, dia] = val.split('-');
+            document.getElementById('txtDataExibicao').innerText = `${dia}/${mes}/${ano}`;
+        }
 
-            const dataSel =
-                document.getElementById('data_rota').value;
+        function mudarDia(direcao) {
+            const input = document.getElementById('dataFiltro');
+            if (!input.value) return;
+            
+            let data = new Date(input.value + 'T00:00:00');
+            data.setDate(data.getDate() + direcao);
+            
+            input.value = data.toISOString().split('T')[0];
+            atualizarTextoData();
+            carregarRotas(); 
+        }
 
-            if (!dataSel) {
-                return alert(
-                    "Selecione uma data primeiro!"
-                );
-            }
+        async function gerarPendentesGlobais() {
+            const btn = document.querySelector('.btn-action:not(.btn-danger)');
+            const txtOriginal = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" style="width:16px;"></i> Processando Lote...`;
+            lucide.createIcons();
 
-            const req = await fetch(
-                `${API}/gerar_rotas`,
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-
-                    body: JSON.stringify({
-                        data: dataSel
-                    })
-                }
-            );
-
-            const res = await req.json();
-
-            if (req.ok) {
-
+            try {
+                const req = await fetch(`${API}/gerar_rotas_pendentes`, { method: 'POST' });
+                const res = await req.json();
                 alert(res.message);
+                carregarRotas(); 
+            } catch (error) { 
+                alert("Erro ao processar as rotas pendentes."); 
+            } finally { 
+                btn.innerHTML = txtOriginal; 
+                lucide.createIcons();
+            }
+        }
+        
+        async function gerarTodasAsRotas() {
+            const dataSel = document.getElementById('dataFiltro').value;
+            if (!dataSel) return alert("Selecione uma data primeiro!");
 
+            if (!confirm(`O Arkus vai recalcular TODOS os agendamentos do dia ${dataSel.split('-').reverse().join('/')} em diante. Deseja continuar?`)) return;
+            
+            const btn = document.querySelector('.btn-danger');
+            const txtOriginal = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="refresh-cw" style="width:15px;" class="animate-spin"></i> Recalculando...`;
+            lucide.createIcons();
+
+            try {
+                const req = await fetch(`${API}/gerar_todas_rotas`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data_inicio: dataSel })
+                });
+                const res = await req.json();
+                alert(res.message);
                 carregarRotas();
-
-            } else {
-
-                alert("Erro: " + res.message);
+            } catch (error) { 
+                alert("Erro ao recalcular as rotas."); 
+            } finally { 
+                btn.innerHTML = txtOriginal; 
+                lucide.createIcons();
             }
         }
 
         async function carregarRotas() {
+            const dataSel = document.getElementById('dataFiltro').value;
+            if (!dataSel) return;
 
-            const dataSel =
-                document.getElementById('data_rota').value;
+            const timestamp = new Date().getTime();
 
-            if (!dataSel) {
-                return;
-            }
+            const resPendencias = await fetch(`${API}/resumo_pendencias?data=${dataSel}&t=${timestamp}`);
+            const pendencias = await resPendencias.json();
+            
+            const cPendentes = parseInt(pendencias.Coleta) || 0;
+            const rPendentes = parseInt(pendencias.Retirada) || 0;
+            const totalPendentes = cPendentes + rPendentes;
 
-            const resPendencias = await fetch(
-                `${API}/resumo_pendencias?data=${dataSel}`
-            );
-
-            const pendencias =
-                await resPendencias.json();
-
-            const totalPendentes =
-                pendencias.Coleta +
-                pendencias.Retirada;
-
-            const res = await fetch(
-                `${API}/visualizar_rotas?data=${dataSel}`
-            );
-
+            const res = await fetch(`${API}/visualizar_rotas?data=${dataSel}&t=${timestamp}`);
             const dados = await res.json();
+            const badge = document.getElementById('badge-pendentes');
 
-            const badge =
-                document.getElementById(
-                    'badge-pendentes'
-                );
-
-            if (dados.length === 0) {
-
-                badge.style.display = 'none';
-
+            if (dados.length === 0 && totalPendentes === 0) { 
+                badge.style.display = 'none'; 
             } else if (totalPendentes > 0) {
-
                 badge.style.display = 'block';
-
-                badge.innerHTML = `
-                    <div style="
-                        display:flex;
-                        align-items:center;
-                        gap:8px;
-                        background:rgba(231, 76, 60, 0.15);
-                        border:1px solid rgba(231, 76, 60, 0.4);
-                        padding:8px 16px;
-                        border-radius:6px;
-                        color:#e74c3c;
-                        font-size:14px;
-                        font-weight:normal;
-                    ">
-                        <i
-                            data-lucide="alert-octagon"
-                            style="width:18px;height:18px;"
-                        ></i>
-
-                        <span>
-                            <strong>
-                                Alerta de Capacidade:
-                            </strong>
-
-                            ${totalPendentes}
-                            solicitação(ões)
-                            requerem alocação manual.
-                        </span>
-                    </div>
-                `;
-
+                badge.innerHTML = `<div style="display:flex; align-items:center; gap:8px; background:rgba(231, 76, 60, 0.08); border:1px solid rgba(231, 76, 60, 0.3); padding:8px 14px; border-radius:6px; color:#e74c3c; font-size:13px; width: 100%; box-sizing: border-box;"><i data-lucide="alert-octagon" style="width:16px;height:16px;flex-shrink:0;"></i><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><strong>Alerta:</strong> ${totalPendentes} pendências sem alocação nesta data (${cPendentes} coletas e ${rPendentes} retiradas).</span></div>`;
             } else {
-
                 badge.style.display = 'block';
-
-                badge.innerHTML = `
-                    <div style="
-                        display:flex;
-                        align-items:center;
-                        gap:8px;
-                        background:rgba(46, 204, 113, 0.15);
-                        border:1px solid rgba(46, 204, 113, 0.4);
-                        padding:8px 16px;
-                        border-radius:6px;
-                        color:#2ecc71;
-                        font-size:14px;
-                        font-weight:normal;
-                    ">
-                        <i
-                            data-lucide="check-circle-2"
-                            style="width:18px;height:18px;"
-                        ></i>
-
-                        <span>
-                            <strong>Status:</strong>
-                            Roteirização otimizada com
-                            100% de aproveitamento.
-                        </span>
-                    </div>
-                `;
+                badge.innerHTML = `<div style="display:flex; align-items:center; gap:8px; background:rgba(46, 204, 113, 0.08); border:1px solid rgba(46, 204, 113, 0.3); padding:8px 14px; border-radius:6px; color:#2ecc71; font-size:13px; width: 100%; box-sizing: border-box;"><i data-lucide="check-circle-2" style="width:16px;height:16px;flex-shrink:0;"></i><span>Operação 100% Roteirizada.</span></div>`;
             }
 
             lucide.createIcons();
+            document.getElementById('lista-tec').innerHTML = '';
+            document.getElementById('lista-moto').innerHTML = '';
 
-            document.getElementById(
-                'lista-tec'
-            ).innerHTML = '';
-
-            document.getElementById(
-                'lista-moto'
-            ).innerHTML = '';
-
-            const gruposTec = {};
-            const gruposMoto = {};
-
+            const gruposTec = {}, gruposMoto = {};
             dados.forEach(c => {
-
                 if (c.tecnico_id) {
-
-                    if (!gruposTec[c.tecnico_id]) {
-
-                        gruposTec[c.tecnico_id] = {
-                            nome: c.tecnico_nome,
-                            plantao: c.tecnico_horario,
-                            atendimentos: []
-                        };
-                    }
-
-                    gruposTec[c.tecnico_id]
-                        .atendimentos
-                        .push(c);
+                    if (!gruposTec[c.tecnico_id]) gruposTec[c.tecnico_id] = { nome: c.tecnico_nome, plantao: c.tecnico_horario, atendimentos: [] };
+                    gruposTec[c.tecnico_id].atendimentos.push(c);
                 }
-
                 if (c.motoboy_id) {
-
-                    if (!gruposMoto[c.motoboy_id]) {
-
-                        gruposMoto[c.motoboy_id] = {
-                            nome: c.motoboy_nome,
-                            plantao: c.motoboy_horario,
-                            atendimentos: []
-                        };
-                    }
-
-                    gruposMoto[c.motoboy_id]
-                        .atendimentos
-                        .push(c);
+                    if (!gruposMoto[c.motoboy_id]) gruposMoto[c.motoboy_id] = { nome: c.motoboy_nome, plantao: c.motoboy_horario, atendimentos: [] };
+                    gruposMoto[c.motoboy_id].atendimentos.push(c);
                 }
             });
 
-            const renderizarGrupo = (
-                grupos,
-                containerId,
-                isMoto
-            ) => {
-
+            const renderizarGrupo = (grupos, containerId, isMoto) => {
                 let html = '';
-
-                Object.values(grupos).forEach(
-                    grupo => {
-
-                        grupo.atendimentos.sort(
-                            (a, b) => {
-
-                                const horaA =
-                                    a.preferencia_horario
-                                    || "00:00";
-
-                                const horaB =
-                                    b.preferencia_horario
-                                    || "00:00";
-
-                                return horaA.localeCompare(
-                                    horaB
-                                );
-                            }
-                        );
-
-                        html += `
-                            <div class="
-                                card-profissional
-                                ${isMoto ? 'moto' : ''}
-                            ">
-
-                                <div style="
-                                    display:flex;
-                                    justify-content:space-between;
-                                    align-items:center;
-                                    margin-bottom:10px;
-                                ">
-
-                                    <span class="
-                                        nome-profissional
-                                    ">
-                                        ${
-                                            isMoto
-                                            ? '🏍️'
-                                            : '👨‍⚕️'
-                                        }
-
-                                        ${grupo.nome}
-                                    </span>
-
-                                    <span style="
-                                        font-size:11px;
-                                        background:#343b47;
-                                        padding:4px 8px;
-                                        border-radius:12px;
-                                        opacity:0.9;
-                                    ">
-                                        📅 ${grupo.plantao}
-                                    </span>
-
-                                </div>
-                        `;
-
-                        grupo.atendimentos.forEach(
-                            (atend, index) => {
-
-                                html += `
-                                    <div class="
-                                        item-atendimento
-                                    ">
-
-                                        <div class="
-                                            atendimento-header
-                                        ">
-
-                                            <span>
-                                                <span class="
-                                                    num-ordem
-                                                ">
-                                                    ${index + 1}°
-                                                </span>
-
-                                                <strong>
-                                                    ${atend.nome}
-                                                </strong>
-                                            </span>
-
-                                            <span class="
-                                                horario
-                                            ">
-                                                🕒
-                                                ${atend.preferencia_horario}
-                                            </span>
-
-                                        </div>
-
-                                        <small style="
-                                            color:#bbb;
-                                        ">
-                                            📍
-                                            ${atend.endereco}
-                                        </small>
-
-                                    </div>
-                                `;
-                            }
-                        );
-
-                        html += `
-                            </div>
-                        `;
-                    }
-                );
-
-                document.getElementById(
-                    containerId
-                ).innerHTML =
-                    html
-                    || `
-                        <p style="
-                            text-align:center;
-                            opacity:0.5;
-                        ">
-                            Nenhuma rota gerada.
-                        </p>
-                    `;
+                Object.values(grupos).forEach(grupo => {
+                    grupo.atendimentos.sort((a, b) => (a.preferencia_horario || "00:00").localeCompare(b.preferencia_horario || "00:00"));
+                    html += `<div class="card-profissional ${isMoto ? 'moto' : ''}"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span class="nome-profissional">${isMoto ? '🏍️' : '👨‍⚕️'} ${grupo.nome}</span><span style="font-size:11px; background:#343b47; padding:4px 8px; border-radius:12px;">📅 ${grupo.plantao}</span></div>`;
+                    grupo.atendimentos.forEach((atend, index) => {
+                        html += `<div class="item-atendimento"><div class="atendimento-header"><span><span class="num-ordem">${index + 1}°</span><strong>${atend.nome}</strong></span><span class="horario">🕒 ${atend.preferencia_horario}</span></div><small style="color:#bbb;">📍 ${atend.endereco}</small></div>`;
+                    });
+                    html += `</div>`;
+                });
+                document.getElementById(containerId).innerHTML = html || `<p style="text-align:center; opacity:0.5; font-size:14px; margin-top:40px;">Nenhuma rota gerada para a data selecionada.</p>`;
             };
 
-            renderizarGrupo(
-                gruposTec,
-                'lista-tec',
-                false
-            );
-
-            renderizarGrupo(
-                gruposMoto,
-                'lista-moto',
-                true
-            );
+            renderizarGrupo(gruposTec, 'lista-tec', false);
+            renderizarGrupo(gruposMoto, 'lista-moto', true);
         }
 
+        function fazerLogout() {
+            if (confirm("Deseja realmente sair do Arkus?")) {
+                localStorage.removeItem('arkus_usuario'); 
+                window.location.href = "login.html"; 
+            }
+        }
     </script>
-
 </body>
 </html>
