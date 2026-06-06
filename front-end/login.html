@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARKUS | Autenticação</title>
+    <link rel="icon" type="image/png" href="Logo.png">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #050b14;
+            background-image: linear-gradient(rgba(5, 11, 20, 0.4), rgba(5, 11, 20, 0.4)), url('fundo.png'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #fff;
+        }
+
+        .login-card {
+            background: rgba(10, 18, 35, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(100, 180, 255, 0.2);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            padding: 35px 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-logo {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .arkus-logo-img {
+            width: 180px;
+            height: auto;
+            margin: 0 auto;
+            content: url('logo.png');
+            filter: drop-shadow(0 0 12px rgba(100, 180, 255, 0.6));
+        }
+
+        .header-logo h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            margin-top: 5px;
+            margin-bottom: 2px;
+            color: #ffffff;
+        }
+
+        .header-logo p {
+            font-size: 9px;
+            letter-spacing: 2.5px;
+            color: #94a3b8;
+        }
+
+        .input-block {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-left {
+            position: absolute;
+            left: 18px;
+            color: #94a3b8;
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+        }
+
+        .icon-right {
+            position: absolute;
+            right: 18px;
+            color: #94a3b8;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .cyber-input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            border-radius: 30px; 
+            padding: 14px 45px;
+            color: #fff;
+            font-size: 13px;
+            font-family: 'Montserrat', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .cyber-input:focus {
+            border-color: #3498db;
+            background: rgba(52, 152, 219, 0.05);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .cyber-input::placeholder {
+            color: #64748b;
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: right;
+            font-size: 11px;
+            color: #94a3b8;
+            text-decoration: none;
+            margin-top: -5px;
+            margin-bottom: 20px;
+            margin-right: 10px;
+        }
+
+        .forgot-link:hover {
+            color: #fff;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #0f3c7a, #1a5baf);
+            color: white;
+            border: 1px solid rgba(100, 180, 255, 0.3);
+            border-radius: 30px; 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(15, 60, 122, 0.5);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #1a5baf, #2575d3);
+            box-shadow: 0 6px 20px rgba(26, 91, 175, 0.6);
+        }
+
+        .toggle-form-text {
+            text-align: center;
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 20px;
+        }
+
+        .toggle-form-text a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .toggle-form-text a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 9px;
+            color: #64748b;
+            margin-top: 30px;
+            letter-spacing: 0.5px;
+        }
+
+        .erro-msg, .sucesso-msg {
+            font-size: 11px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            padding: 10px;
+            border-radius: 30px; 
+        }
+
+        .erro-msg {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .sucesso-msg {
+            color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        
+        <div class="header-logo">
+            <div class="arkus-logo-img"></div>
+            <h1>ARKUS</h1>
+            <p>INTELIGÊNCIA. CONTROLE. RESULTADOS.</p>
+        </div>
+
+        <div class="erro-msg" id="msg-erro">Usuário ou senha incorretos.</div>
+        <div class="sucesso-msg" id="msg-sucesso">Conta criada com sucesso!</div>
+
+        <form id="form-login" onsubmit="fazerLogin(event)">
+            
+            <div class="input-block">
+                <div class="input-wrapper">
+                    <i data-lucide="user" class="icon-left"></i>
+                    <input type="text" id="log_usuario" class="cyber-input" placeholder="E-mail corporativo" required>
+                </div>
+            </div>
+
+            <div class="input-block">
+                <div class="input-wrapper">
+                    <i data-lucide="lock" class="icon-left"></i>
+                    <input type="password" id="log_senha" class="cyber-input" placeholder="Senha" required>
+                    <i data-lucide="eye" class="icon-right" onclick="toggleSenha('log_senha')"></i>
+                </div>
+            </div>
+
+            <a href="#" class="forgot-link">Esqueceu sua senha?</a>
+
+            <button type="submit" class="btn-primary" id="btn-login-submit">Entrar</button>
+
+            <p class="toggle-form-text">
+                Primeiro acesso? <a href="#" onclick="alternarFormularios('cadastro')">Criar Conta</a>
+            </p>
+        </form>
+
+        <form id="form-cadastro" style="display: none;" onsubmit="fazerCadastro(event)">
+            
+            <div class="input-block">
+                <div class="input-wrapper">
+                    <i data-lucide="mail" class="icon-left"></i>
+                    <input type="text" id="cad_usuario" class="cyber-input" placeholder="Novo e-mail corporativo" required>
+                </div>
+            </div>
+
+            <div class="input-block">
+                <div class="input-wrapper">
+                    <i data-lucide="lock" class="icon-left"></i>
+                    <input type="password" id="cad_senha" class="cyber-input" placeholder="Criar senha" required>
+                    <i data-lucide="eye" class="icon-right" onclick="toggleSenha('cad_senha')"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-cad-submit" style="background: linear-gradient(90deg, #1e5b43, #2ecc71); border-color: #2ecc71;">Cadastrar</button>
+
+            <p class="toggle-form-text">
+                Já possui uma conta? <a href="#" onclick="alternarFormularios('login')">Fazer Login</a>
+            </p>
+        </form>
+
+        <div class="footer">
+            <i data-lucide="copyright" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle;"></i> 2026 Arkus, Inc. Todos os direitos reservados.
+        </div>
+        
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleSenha(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+
+        function alternarFormularios(tela) {
+            document.getElementById('msg-erro').style.display = 'none';
+            document.getElementById('msg-sucesso').style.display = 'none';
+
+            if (tela === 'cadastro') {
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-cadastro').style.display = 'block';
+            } else {
+                document.getElementById('form-cadastro').style.display = 'none';
+                document.getElementById('form-login').style.display = 'block';
+            }
+        }
+
+        async function fazerLogin(event) {
+            event.preventDefault(); 
+            
+            const usuario = document.getElementById('log_usuario').value;
+            const senha = document.getElementById('log_senha').value;
+            const btn = document.getElementById('btn-login-submit');
+            const msgErro = document.getElementById('msg-erro');
+            const msgSucesso = document.getElementById('msg-sucesso');
+            
+            btn.innerText = "Verificando...";
+            msgErro.style.display = "none";
+            msgSucesso.style.display = "none";
+
+            try {
+                const req = await fetch("http://localhost:5000/api/login", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: usuario, senha: senha })
+                });
+
+                const res = await req.json();
+
+                if (res.sucesso) {
+                    localStorage.setItem('arkus_autenticado', 'true');
+                    localStorage.setItem('arkus_usuario', usuario);
+                    
+                    btn.innerText = "Conectado";
+                    btn.style.background = "linear-gradient(90deg, #1e5b43, #2ecc71)"; 
+                    
+                    setTimeout(() => {
+                        window.location.href = "index.html"; 
+                    }, 800);
+
+                } else {
+                    msgErro.innerText = res.mensagem || "Credenciais inválidas.";
+                    msgErro.style.display = "block";
+                    btn.innerText = "Entrar";
+                }
+            } catch (erro) {
+                msgErro.innerText = "Falha de conexão com o servidor Arkus.";
+                msgErro.style.display = "block";
+                btn.innerText = "Entrar";
+            }
+        }
+
+        async function fazerCadastro(event) {
+            event.preventDefault(); 
+            
+            const usuario = document.getElementById('cad_usuario').value;
+            const senha = document.getElementById('cad_senha').value;
+            const btn = document.getElementById('btn-cad-submit');
+            const msgErro = document.getElementById('msg-erro');
+            const msgSucesso = document.getElementById('msg-sucesso');
+            
+            btn.innerText = "Registrando...";
+            msgErro.style.display = "none";
+            msgSucesso.style.display = "none";
+
+            try {
+                const req = await fetch("http://localhost:5000/api/cadastro", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario: usuario, senha: senha })
+                });
+
+                const res = await req.json();
+
+                if (res.sucesso) {
+                    msgSucesso.innerText = res.mensagem;
+                    msgSucesso.style.display = "block";
+                    btn.innerText = "Cadastrar";
+                    
+                    document.getElementById('cad_usuario').value = "";
+                    document.getElementById('cad_senha').value = "";
+                    
+                    setTimeout(() => {
+                        alternarFormularios('login');
+                    }, 2000);
+
+                } else {
+                    msgErro.innerText = res.mensagem;
+                    msgErro.style.display = "block";
+                    btn.innerText = "Cadastrar";
+                }
+            } catch (erro) {
+                msgErro.innerText = "Falha de conexão com o servidor.";
+                msgErro.style.display = "block";
+                btn.innerText = "Cadastrar";
+            }
+        }
+    </script>
+</body>
+</html>
