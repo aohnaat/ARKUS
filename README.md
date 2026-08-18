@@ -1,42 +1,251 @@
-# 🏥 Projeto ARKUS – Sistema de Roteirização Domiciliar
+# 🏥 ARKUS — Sistema de Gestão e Roteirização Domiciliar
 
-O **ARKUS** é uma solução inteligente focada na otimização de fluxos logísticos para coletas domiciliares. O sistema permite o controle rigoroso de demandas e a automação da distribuição de tarefas para equipes de campo.
+Sistema web desenvolvido para auxiliar no **gerenciamento, distribuição e monitoramento de coletas domiciliares**, integrando gestão de demandas, equipes, roteirização, visualização geográfica e indicadores operacionais.
 
----
-
-## ✅ Funcionalidades Consolidadas (AC1 & AC2)
-*Base operacional e gestão de dados estruturada.*
-
-* **Gestão de Demandas:** Módulo para cadastro manual de emergências e suporte à importação massiva via planilhas CSV.
-* **Gestão de Equipes:** Cadastro completo de **Técnicos e Motoboys**, incluindo validação de documentos (Matrícula/CPF) e horários de trabalho.
-* **Manutenção e Filtros:** Interface dinâmica para busca de solicitações e funcionalidade de exclusão em massa para higienização do banco de dados.
+O ARKUS foi desenvolvido como projeto acadêmico de conclusão de curso, utilizando uma arquitetura **Full-Stack**, com aplicação web, API em Python/Flask e banco de dados MySQL.
 
 ---
 
-## 🧠 Terceira Entrega: Inteligência de Distribuição (AC3)
-*Funcionalidade Full-Stack: Integração total entre interface, lógica e persistência.*
+## 📌 Sobre o projeto
 
-Nesta etapa, o sistema evolui para o processamento automático da logística, conectando as três camadas do projeto:
+O ARKUS surgiu com o objetivo de centralizar e organizar o fluxo de coletas domiciliares, permitindo que as demandas sejam cadastradas, distribuídas entre profissionais disponíveis e acompanhadas por meio de diferentes painéis operacionais.
 
-* **Front-end:** Interface de controle que permite ao operador disparar o processo de distribuição e visualizar os resultados em tempo real.
-* **Back-end (Python):** Algoritmo responsável por processar a fila de solicitações pendentes e distribuí-las de forma equilibrada entre os profissionais ativos.
-* **Banco de Dados (MySQL):** Persistência imediata das atribuições, vinculando cada demanda ao seu respectivo executor e atualizando o status operacional no sistema.
+A aplicação integra três camadas principais:
 
----
-
-## 🚀 Próximos Passos (Entrega Final)
-*Visualização estratégica e análise de performance.*
-
-- [ ] **Camada de Visualização Geográfica:** Integração com mapas para localização espacial das coletas e otimização visual de rotas.
-- [ ] **Painel de Monitoramento de Capacidade:** Dashboard de indicadores para análise de produtividade e validação da capacidade de atendimento diário.
+* **Front-end:** interface utilizada pelos operadores para gerenciamento e acompanhamento das informações.
+* **Back-end:** API desenvolvida em Python com Flask, responsável pelas regras de negócio, processamento e distribuição das demandas.
+* **Banco de dados:** MySQL, responsável pela persistência e organização das informações do sistema.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
-- **Linguagem:** Python (Backend)
-- **Interface:** HTML5, CSS3 e JavaScript
-- **Banco de Dados:** MySQL
-- **Ambiente:** Visual Studio Code & GitHub
+## ⚙️ Principais funcionalidades
+
+### 📋 Gestão de demandas
+
+* Cadastro manual de solicitações.
+* Importação de demandas por arquivo CSV.
+* Consulta e acompanhamento das solicitações.
+* Controle de status das demandas.
+* Organização das informações de pacientes, endereços e horários.
+
+### 👥 Gestão de equipes
+
+* Cadastro de técnicos.
+* Cadastro de motoboys.
+* Controle de matrícula.
+* Definição de horários de trabalho.
+* Importação de listas de profissionais.
+* Identificação dos profissionais disponíveis para atendimento.
+
+### 🚚 Roteirização e distribuição
+
+* Geração das rotas do dia.
+* Distribuição das demandas entre profissionais disponíveis.
+* Organização das coletas por sequência de atendimento.
+* Organização das retiradas realizadas pelos motoboys.
+* Identificação de pendências de alocação.
+* Reprocessamento das rotas quando necessário.
+
+### 🗺️ Monitoramento geográfico
+
+* Visualização das demandas em mapa.
+* Distribuição geográfica das solicitações.
+* Identificação das regiões com maior concentração de demandas.
+* Consulta das informações associadas aos pontos de atendimento.
+
+### 📊 Dashboard gerencial
+
+* Monitoramento da capacidade operacional.
+* Indicadores de ocupação.
+* Produtividade operacional.
+* Disponibilidade de vagas.
+* Análise de demanda por turno.
+* Identificação de zonas de alta demanda.
+* Balanço geral da capacidade de atendimento.
 
 ---
-*Projeto desenvolvido para fins acadêmicos - 2026*
+
+## 🖥️ Principais telas
+
+> *As imagens abaixo serão adicionadas ao repositório posteriormente.*
+
+### 📊 Dashboard Gerencial
+
+**Painel de acompanhamento dos principais indicadores operacionais.**
+
+`[ imagem do dashboard ]`
+
+---
+
+### 📋 Agendamentos
+
+**Tela responsável pelo cadastro, importação e acompanhamento das demandas.**
+
+`[ imagem de agendamentos ]`
+
+---
+
+### 👥 Gestão de Equipe
+
+**Gerenciamento dos técnicos e motoboys disponíveis para atendimento.**
+
+`[ imagem de gestão de equipe ]`
+
+---
+
+### 🚚 Rotas
+
+**Painel de distribuição e organização das coletas e retiradas.**
+
+`[ imagem de rotas ]`
+
+---
+
+### 🗺️ Mapa de Rotas
+
+**Visualização geográfica das demandas e pontos de atendimento.**
+
+`[ imagem do mapa ]`
+
+---
+
+## 🔄 Fluxo do sistema
+
+O funcionamento do ARKUS pode ser representado de forma simplificada:
+
+```text
+Demandas
+   │
+   ▼
+Agendamentos
+   │
+   ▼
+Profissionais disponíveis
+   │
+   ▼
+Distribuição das demandas
+   │
+   ▼
+Geração das rotas
+   │
+   ├──────────────► Mapa de Rotas
+   │
+   ▼
+Acompanhamento operacional
+   │
+   ▼
+Dashboard e indicadores
+```
+
+---
+
+## 🧩 Arquitetura
+
+```text
+┌─────────────────────────────────┐
+│            FRONT-END            │
+│      HTML • CSS • JavaScript    │
+└────────────────┬────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────┐
+│            BACK-END             │
+│          Python • Flask         │
+│                                 │
+│ • API                           │
+│ • Regras de negócio             │
+│ • Distribuição de demandas      │
+│ • Processamento das rotas       │
+└────────────────┬────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────┐
+│           BANCO DE DADOS        │
+│              MySQL              │
+│                                 │
+│ • Demandas                      │
+│ • Profissionais                 │
+│ • Agendamentos                  │
+│ • Rotas                         │
+└─────────────────────────────────┘
+```
+
+---
+
+## 🛠️ Tecnologias utilizadas
+
+| Tecnologia             | Utilização                                |
+| ---------------------- | ----------------------------------------- |
+| **Python**             | Desenvolvimento do back-end               |
+| **Flask**              | Construção da API e integração do sistema |
+| **MySQL**              | Banco de dados relacional                 |
+| **HTML5**              | Estrutura das interfaces                  |
+| **CSS3**               | Estilização das interfaces                |
+| **JavaScript**         | Interatividade e integração das telas     |
+| **GitHub**             | Versionamento e armazenamento do projeto  |
+| **Visual Studio Code** | Ambiente de desenvolvimento               |
+
+---
+
+## 📁 Estrutura do projeto
+
+```text
+ARKUS/
+│
+├── backend/
+│   └── API, conexão com banco e lógica de roteirização
+│
+├── database/
+│   └── Estrutura e modelagem do banco de dados MySQL
+│
+├── front-end/
+│   └── Interfaces, dashboards e funcionalidades visuais
+│
+└── README.md
+```
+
+---
+
+## 🚀 Evolução do projeto
+
+O ARKUS foi desenvolvido de forma incremental, evoluindo desde a estruturação dos dados e gerenciamento das demandas até a integração entre interface, back-end, banco de dados e funcionalidades de distribuição.
+
+Entre as funcionalidades desenvolvidas estão:
+
+* Estruturação do banco de dados.
+* Gestão de demandas.
+* Gestão de equipes.
+* Integração entre front-end e back-end.
+* Distribuição automática das demandas.
+* Geração e organização de rotas.
+* Visualização geográfica.
+* Dashboard de indicadores operacionais.
+
+---
+
+## 🔮 Próximos passos
+
+Entre as possibilidades de evolução do projeto estão:
+
+* Aprimoramento da otimização geográfica das rotas.
+* Evolução dos indicadores operacionais.
+* Expansão dos recursos de monitoramento.
+* Melhorias na análise de capacidade e produtividade.
+
+---
+
+## 🎓 Projeto acadêmico
+
+Projeto desenvolvido para fins acadêmicos como parte da formação em **Análise e Desenvolvimento de Sistemas — 2026**.
+
+### 👩‍💻 Desenvolvedora
+
+**Laís dos Reis**
+
+Projeto desenvolvido individualmente.
+
+---
+
+## 📄 Licença
+
+Projeto desenvolvido para fins acadêmicos e de portfólio.
